@@ -1,0 +1,43 @@
+# Offline demo only. External integrations are simulated under this profile.
+server:
+  address: 127.0.0.1
+spring:
+  datasource:
+    druid:
+      initial-size: 1
+      min-idle: 1
+      max-active: 10
+logging:
+  level:
+    com.sky.mapper: info
+sky:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: 127.0.0.1
+    port: 3306
+    database: sky_take_out
+    username: sky_local
+    password: ${SKY_DB_PASSWORD}
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: ${SKY_REDIS_PASSWORD}
+    database: 10
+  jwt:
+    admin-secret-key: ${SKY_ADMIN_JWT_SECRET}
+    user-secret-key: ${SKY_USER_JWT_SECRET}
+  alioss:
+    endpoint: local-demo
+    access-key-id: local-demo
+    access-key-secret: local-demo
+    bucket-name: local-demo
+  wechat:
+    appid: local-demo
+    secret: local-demo
+    mchid: local-demo
+    mchSerialNo: local-demo
+    privateKeyFilePath: unused-in-local-profile
+    apiV3Key: local-demo
+    weChatPayCertFilePath: unused-in-local-profile
+    notifyUrl: http://127.0.0.1:8080/unused-in-local-profile
+    refundNotifyUrl: http://127.0.0.1:8080/unused-in-local-profile

@@ -1,0 +1,32 @@
+# Optional real-service profile. Provide your own credentials through the process environment.
+# The default/local profile uses the offline adapters and never needs these external keys.
+sky:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: ${SKY_DB_HOST:127.0.0.1}
+    port: ${SKY_DB_PORT:3306}
+    database: ${SKY_DB_DATABASE:sky_take_out}
+    username: ${SKY_DB_USERNAME:sky_local}
+    password: ${SKY_DB_PASSWORD}
+  alioss:
+    endpoint: ${SKY_OSS_ENDPOINT}
+    access-key-id: ${SKY_OSS_ACCESS_KEY_ID}
+    access-key-secret: ${SKY_OSS_ACCESS_KEY_SECRET}
+    bucket-name: ${SKY_OSS_BUCKET}
+  redis:
+    host: ${SKY_REDIS_HOST:127.0.0.1}
+    port: ${SKY_REDIS_PORT:6379}
+    password: ${SKY_REDIS_PASSWORD}
+    database: ${SKY_REDIS_DATABASE:10}
+  wechat:
+    appid: ${SKY_WECHAT_APP_ID}
+    secret: ${SKY_WECHAT_SECRET}
+    mchid: ${SKY_WECHAT_MERCHANT_ID}
+    mchSerialNo: ${SKY_WECHAT_MERCHANT_SERIAL}
+    privateKeyFilePath: ${SKY_WECHAT_PRIVATE_KEY_PATH}
+    apiV3Key: ${SKY_WECHAT_API_V3_KEY}
+    weChatPayCertFilePath: ${SKY_WECHAT_PLATFORM_CERT_PATH}
+    notifyUrl: ${SKY_WECHAT_PAYMENT_NOTIFY_URL}
+    refundNotifyUrl: ${SKY_WECHAT_REFUND_NOTIFY_URL}
+  baidu:
+    ak: ${SKY_BAIDU_AK}

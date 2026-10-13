@@ -1,0 +1,630 @@
+{
+  "schema_version": 1,
+  "kind": "historical-local-validation-summary",
+  "business_validation_date": "2026-10-11",
+  "documentation_publication_date": "2026-10-14",
+  "environment": {
+    "os": "Windows",
+    "application_instances": 1,
+    "database": "MySQL 8.0.46",
+    "cache": "Redis 7.4.3",
+    "connection_pool_max": 10,
+    "payment_and_refund": "local simulation",
+    "load_model": "one small barrier-released batch per scenario"
+  },
+  "unit_tests": {
+    "passed": true,
+    "total": 43,
+    "suites": [
+      {
+        "name": "com.sky.controller.OrderControllerRegressionTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.sky.controller.PaymentNotificationTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.sky.DateFormatCompatibilityTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.sky.service.IdentityAndSignatureTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.sky.service.MealSessionServiceTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.sky.service.OrderPricingTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.sky.service.OrderServiceRegressionTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "http_and_restart_checks": {
+    "baseline": {
+      "executed_at": "2026-10-11T23:09:40.055303+08:00",
+      "passed": true,
+      "checks": [
+        {
+          "check": "built frontend HTML and script assets served",
+          "passed": true
+        },
+        {
+          "check": "admin rejects missing token",
+          "passed": true
+        },
+        {
+          "check": "user rejects missing token",
+          "passed": true
+        },
+        {
+          "check": "admin login",
+          "passed": true
+        },
+        {
+          "check": "employee page",
+          "passed": true
+        },
+        {
+          "check": "category page",
+          "passed": true
+        },
+        {
+          "check": "dish page",
+          "passed": true
+        },
+        {
+          "check": "setmeal page",
+          "passed": true
+        },
+        {
+          "check": "shop status available",
+          "passed": true
+        },
+        {
+          "check": "open shop",
+          "passed": true
+        },
+        {
+          "check": "shop is open",
+          "passed": true
+        },
+        {
+          "check": "local login rejects unknown code",
+          "passed": true
+        },
+        {
+          "check": "local user login",
+          "passed": true
+        },
+        {
+          "check": "second local user login",
+          "passed": true
+        },
+        {
+          "check": "user categories",
+          "passed": true
+        },
+        {
+          "check": "user dishes and Redis cache",
+          "passed": true
+        },
+        {
+          "check": "cached dish response",
+          "passed": true
+        },
+        {
+          "check": "create local address",
+          "passed": true
+        },
+        {
+          "check": "address list",
+          "passed": true
+        },
+        {
+          "check": "clear demo cart",
+          "passed": true
+        },
+        {
+          "check": "completed order: add dish",
+          "passed": true
+        },
+        {
+          "check": "completed order: cart",
+          "passed": true
+        },
+        {
+          "check": "submit order",
+          "passed": true
+        },
+        {
+          "check": "cart is cleared after order",
+          "passed": true
+        },
+        {
+          "check": "other user cannot simulate this payment",
+          "passed": true
+        },
+        {
+          "check": "simulated prepayment",
+          "passed": true
+        },
+        {
+          "check": "simulate successful payment",
+          "passed": true
+        },
+        {
+          "check": "WebSocket new-order event through Nginx",
+          "passed": true
+        },
+        {
+          "check": "user reminder",
+          "passed": true
+        },
+        {
+          "check": "WebSocket reminder event through Nginx",
+          "passed": true
+        },
+        {
+          "check": "duplicate local payment is rejected",
+          "passed": true
+        },
+        {
+          "check": "cannot complete before delivery",
+          "passed": true
+        },
+        {
+          "check": "merchant accepts order",
+          "passed": true
+        },
+        {
+          "check": "merchant starts delivery",
+          "passed": true
+        },
+        {
+          "check": "merchant completes order",
+          "passed": true
+        },
+        {
+          "check": "completed order persisted",
+          "passed": true
+        },
+        {
+          "check": "completed order cannot complete again",
+          "passed": true
+        },
+        {
+          "check": "order history",
+          "passed": true
+        },
+        {
+          "check": "order search",
+          "passed": true
+        },
+        {
+          "check": "order statistics",
+          "passed": true
+        },
+        {
+          "check": "workspace businessData",
+          "passed": true
+        },
+        {
+          "check": "workspace overviewOrders",
+          "passed": true
+        },
+        {
+          "check": "workspace overviewDishes",
+          "passed": true
+        },
+        {
+          "check": "workspace overviewSetmeals",
+          "passed": true
+        },
+        {
+          "check": "order search with date filters",
+          "passed": true
+        },
+        {
+          "check": "turnoverStatistics",
+          "passed": true
+        },
+        {
+          "check": "userStatistics",
+          "passed": true
+        },
+        {
+          "check": "ordersStatistics",
+          "passed": true
+        },
+        {
+          "check": "top10",
+          "passed": true
+        },
+        {
+          "check": "unpaid cancellation: add dish",
+          "passed": true
+        },
+        {
+          "check": "unpaid cancellation: cart",
+          "passed": true
+        },
+        {
+          "check": "submit unpaid order",
+          "passed": true
+        },
+        {
+          "check": "cancel unpaid order",
+          "passed": true
+        },
+        {
+          "check": "paid refund: add dish",
+          "passed": true
+        },
+        {
+          "check": "paid refund: cart",
+          "passed": true
+        },
+        {
+          "check": "submit refund order",
+          "passed": true
+        },
+        {
+          "check": "simulate payment for refund",
+          "passed": true
+        },
+        {
+          "check": "cancel paid order and simulate refund",
+          "passed": true
+        },
+        {
+          "check": "transaction rollback: add dish",
+          "passed": true
+        },
+        {
+          "check": "transaction rollback: cart",
+          "passed": true
+        },
+        {
+          "check": "detail failure returns error",
+          "passed": true
+        },
+        {
+          "check": "rollback preserves shopping cart",
+          "passed": true
+        },
+        {
+          "check": "failed detail insert rolls back order header",
+          "passed": true
+        },
+        {
+          "check": "clean rollback cart",
+          "passed": true
+        },
+        {
+          "check": "local upload and Nginx file serving",
+          "passed": true
+        },
+        {
+          "check": "Excel report export",
+          "passed": true
+        },
+        {
+          "check": "13 business tables and Flyway history",
+          "passed": true
+        }
+      ],
+      "source_sha256": "1148fb80c6a5348067929a628860de7cc38ba5621adddb5a74a9559792b6f870"
+    },
+    "campus": {
+      "executed_at": "2026-10-11T23:09:56.574511+08:00",
+      "passed": true,
+      "checks": [
+        {
+          "check": "cart increments both number and amount",
+          "passed": true
+        },
+        {
+          "check": "quote reprices tampered cart from current menu",
+          "passed": true
+        },
+        {
+          "check": "50 simultaneous retries return one persisted order",
+          "passed": true
+        },
+        {
+          "check": "idempotent retry reserves quantities only once",
+          "passed": true
+        },
+        {
+          "check": "server ignores client total and packaging fee",
+          "passed": true
+        },
+        {
+          "check": "line snapshot is authoritative and quantity preserved",
+          "passed": true
+        },
+        {
+          "check": "historical price snapshot survives catalog change",
+          "passed": true
+        },
+        {
+          "check": "same key with changed semantics is rejected",
+          "passed": true
+        },
+        {
+          "check": "invalid request key is rejected",
+          "passed": true
+        },
+        {
+          "check": "off-sale product refused without clearing cart or reserving capacity",
+          "passed": true
+        },
+        {
+          "check": "second user cannot read/update/default/delete another address",
+          "passed": true
+        },
+        {
+          "check": "second user cannot access six order operations",
+          "passed": true
+        },
+        {
+          "check": "WebSocket refuses anonymous handshake",
+          "passed": true
+        },
+        {
+          "check": "WebSocket refuses user-token handshake",
+          "passed": true
+        },
+        {
+          "check": "wrong callback amount leaves order unpaid",
+          "passed": true
+        },
+        {
+          "check": "admin-authenticated WebSocket upgrades",
+          "passed": true
+        },
+        {
+          "check": "duplicate callbacks change state once and emit one event",
+          "passed": true
+        },
+        {
+          "check": "20 concurrent acceptances allow exactly one state transition",
+          "passed": true
+        },
+        {
+          "check": "pickup cannot bypass dedicated fulfillment workflow",
+          "passed": true
+        },
+        {
+          "check": "pickup cannot be redeemed before its pickup window",
+          "passed": true
+        },
+        {
+          "check": "paid meal preparation aggregates quantities",
+          "passed": true
+        },
+        {
+          "check": "capacity 5 permits exactly 5 of 20 competing orders",
+          "passed": true
+        },
+        {
+          "check": "capacity losers keep their shopping carts",
+          "passed": true
+        },
+        {
+          "check": "repeated cancellation releases one portion once",
+          "passed": true
+        },
+        {
+          "check": "paid user cancellation blocked after meal cutoff",
+          "passed": true
+        },
+        {
+          "check": "booking refused after meal cutoff",
+          "passed": true
+        },
+        {
+          "check": "payment arriving after cutoff stays canceled and is refunded",
+          "passed": true
+        },
+        {
+          "check": "unpaid timeout cancels once and releases reservation",
+          "passed": true
+        },
+        {
+          "check": "late callback after timeout cannot resurrect order or release twice",
+          "passed": true
+        },
+        {
+          "check": "cart-versus-checkout race conserves two portions",
+          "passed": true
+        },
+        {
+          "check": "detail failure rolls back capacity, order and cart together",
+          "passed": true
+        },
+        {
+          "check": "refund retry retains one intent and stable provider refund number",
+          "passed": true
+        },
+        {
+          "check": "expired worker lease recovered once with a new claim token",
+          "passed": true
+        },
+        {
+          "check": "six refund failures become visible FAILED intent",
+          "passed": true
+        },
+        {
+          "check": "admin can retry failed refund without creating another task",
+          "passed": true
+        },
+        {
+          "check": "20 concurrent redemptions complete exactly once",
+          "passed": true
+        },
+        {
+          "check": "invalid pickup code refused",
+          "passed": true
+        },
+        {
+          "check": "database reservation invariants hold for every session",
+          "passed": true
+        },
+        {
+          "check": "Flyway migrations V2-V4 each recorded once",
+          "passed": true
+        },
+        {
+          "check": "idempotent result survives full service restart and closed meal",
+          "passed": true
+        },
+        {
+          "check": "restart and repeat bootstrap preserve existing business rows",
+          "passed": true
+        },
+        {
+          "check": "repeat startup preserves three successful schema migrations",
+          "passed": true
+        }
+      ],
+      "source_sha256": "2c3713590ba0e7376ee57b76cb947df8106c59e0ee726fa1d6d1d4a314f94fdf",
+      "restart_verified": true,
+      "concurrency_runs": [
+        {
+          "scenario": "same user, same request key",
+          "requests": 50,
+          "simultaneous_workers": 50,
+          "elapsed_ms": 287.37,
+          "p50_ms": 160.46,
+          "p95_ms": 222.65,
+          "success_responses": 50,
+          "business_rejections": 0
+        },
+        {
+          "scenario": "duplicate payment callbacks",
+          "requests": 20,
+          "simultaneous_workers": 20,
+          "elapsed_ms": 87.51,
+          "p50_ms": 51.39,
+          "p95_ms": 74.76,
+          "success_responses": 20,
+          "business_rejections": 0
+        },
+        {
+          "scenario": "concurrent merchant acceptance",
+          "requests": 20,
+          "simultaneous_workers": 20,
+          "elapsed_ms": 117.51,
+          "p50_ms": 68.4,
+          "p95_ms": 76.79,
+          "success_responses": 1,
+          "business_rejections": 19
+        },
+        {
+          "scenario": "20 distinct users contest 5 portions",
+          "requests": 20,
+          "simultaneous_workers": 20,
+          "elapsed_ms": 151.47,
+          "p50_ms": 111.37,
+          "p95_ms": 132.64,
+          "success_responses": 5,
+          "business_rejections": 15
+        },
+        {
+          "scenario": "concurrent repeated cancellation",
+          "requests": 10,
+          "simultaneous_workers": 10,
+          "elapsed_ms": 59.56,
+          "p50_ms": 47.82,
+          "p95_ms": 50.99,
+          "success_responses": 10,
+          "business_rejections": 0
+        },
+        {
+          "scenario": "cart mutation versus checkout",
+          "requests": 2,
+          "simultaneous_workers": 2,
+          "elapsed_ms": 30.79,
+          "p50_ms": 21.41,
+          "p95_ms": 27.78,
+          "success_responses": 2,
+          "business_rejections": 0
+        },
+        {
+          "scenario": "concurrent refund workers after lease expiry",
+          "requests": 10,
+          "simultaneous_workers": 10,
+          "elapsed_ms": 69.95,
+          "p50_ms": 44.62,
+          "p95_ms": 56.87,
+          "success_responses": 10,
+          "business_rejections": 0
+        },
+        {
+          "scenario": "concurrent pickup-code redemption",
+          "requests": 20,
+          "simultaneous_workers": 20,
+          "elapsed_ms": 97.37,
+          "p50_ms": 58.97,
+          "p95_ms": 77.47,
+          "success_responses": 1,
+          "business_rejections": 19
+        }
+      ]
+    }
+  },
+  "wechat_request_compatibility": {
+    "checks": 5,
+    "script": "scripts/check-wechat-request.cjs",
+    "scope": "compiled client request construction only"
+  },
+  "frontend": {
+    "build_passed": true,
+    "browser_click_acceptance": false
+  },
+  "limitations": [
+    "No production throughput claim",
+    "No real merchant acceptance",
+    "No deployed multi-instance verification",
+    "Not GitHub CI evidence"
+  ],
+  "redaction": "No JWT, credential, local user/order fixture, process environment or raw log included",
+  "publication_validation": {
+    "date": "2026-10-14",
+    "clean_snapshot_backend_build_passed": true,
+    "java_unit_tests": 43,
+    "wechat_request_compatibility_checks": 5,
+    "relative_documentation_links": "passed",
+    "runtime_data_and_original_history_excluded": true,
+    "configured_local_secret_scan": "passed"
+  }
+}
