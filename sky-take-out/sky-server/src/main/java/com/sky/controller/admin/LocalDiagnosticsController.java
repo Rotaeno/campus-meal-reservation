@@ -17,7 +17,7 @@ public class LocalDiagnosticsController {
         this.orders=orders; this.refunds=refunds; this.faults=faults;
     }
     @PostMapping("/timeouts/{id}") public Result<Boolean> expire(@PathVariable Long id) { return Result.success(orders.expireOrder(id)); }
-    @PostMapping("/refunds/run") public Result<String> runRefunds() { refunds.processDue(); return Result.success(); }
+    @PostMapping("/refunds/run") public Result<String> runRefunds() { refunds.processAvailable(); return Result.success(); }
     @PostMapping("/refunds/fail-next") public Result<String> fail(@RequestBody Map<String,Integer> request) {
         Integer count=request.get("count");
         if(count==null || count<0 || count>10) { return Result.error("失败次数需为0至10"); }

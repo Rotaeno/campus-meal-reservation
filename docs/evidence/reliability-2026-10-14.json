@@ -1,0 +1,687 @@
+{
+  "date": "2026-10-14T23:55:30.326138+08:00",
+  "finishedAt": "2026-10-14T23:59:36.868924+08:00",
+  "status": "passed",
+  "parameters": {
+    "load_seconds": 10.0,
+    "workers": 16,
+    "pools": "3,10",
+    "skip_load": false,
+    "load_only": false,
+    "retry_only": false
+  },
+  "environment": {
+    "os": "Windows-11-10.0.26300-SP0",
+    "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+    "logicalCpus": 24,
+    "mysql": "8.0.46",
+    "java": "Corretto 8u504",
+    "springBoot": "2.7.3",
+    "redis": "7.4.3",
+    "instances": 2,
+    "merchant": "independent process / SQLite WAL",
+    "database": "unique test schema",
+    "leaseSeconds": 2,
+    "providerReadTimeoutMs": 6000,
+    "dbLockWaitTimeoutSeconds": 1,
+    "refundAutoScan": false,
+    "businessClockZone": "Asia/Shanghai"
+  },
+  "checks": [
+    {
+      "check": "submit.beforeCommit: observer sees only committed data",
+      "passed": true,
+      "evidence": {
+        "orderVisible": false,
+        "reserved": 0,
+        "cartQuantity": "1"
+      }
+    },
+    {
+      "check": "real pre-commit process crash rolls back all writes",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "submit.beforeCommit: restart and cross-instance same-key retry return one order",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "submit.afterCommit: observer sees only committed data",
+      "passed": true,
+      "evidence": {
+        "orderVisible": true,
+        "reserved": 1,
+        "cartQuantity": "0"
+      }
+    },
+    {
+      "check": "submit.afterCommit: restart and cross-instance same-key retry return one order",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "PROCESSING provider response persists submitted intent for later query",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "merchant committed refund but transport timeout leaves recoverable local intent",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 1,
+        "queryCalls": 0,
+        "actualRefunds": 1,
+        "actualPayments": 1
+      }
+    },
+    {
+      "check": "timeout retry reuses refund number: repeated calls, one actual refund",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 2,
+        "queryCalls": 0,
+        "actualRefunds": 1,
+        "actualPayments": 1
+      }
+    },
+    {
+      "check": "external refund committed while local confirmation writes remain uncommitted",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 1,
+        "queryCalls": 0,
+        "actualRefunds": 1,
+        "actualPayments": 1
+      }
+    },
+    {
+      "check": "app and merchant restart recover committed external refund without double refund",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 2,
+        "queryCalls": 0,
+        "actualRefunds": 1,
+        "actualPayments": 1
+      }
+    },
+    {
+      "check": "late old lease token cannot overwrite new success with failure",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 2,
+        "queryCalls": 0,
+        "actualRefunds": 1,
+        "actualPayments": 1,
+        "attempts": 2,
+        "failures": 0,
+        "staleWriteRejected": true
+      }
+    },
+    {
+      "check": "submitted provider intent recovers by query without another refund POST",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 1,
+        "queryCalls": 1,
+        "actualRefunds": 1,
+        "actualPayments": 1
+      }
+    },
+    {
+      "check": "two apps: 50 same-key requests persist one order and reserve once",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "server amount ignores client pricing fields",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "same key with different semantic parameters is rejected",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "same key ignores new cart and later server price; preserves both original result and new cart",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "same user can place another order in the same meal using a new key",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "different keys cannot simultaneously consume one cart",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "cross-instance add and checkout conserve cart quantities",
+      "passed": true,
+      "evidence": {
+        "orderedQuantity": 2,
+        "remainingCartQuantity": 0
+      }
+    },
+    {
+      "check": "two apps: 20 users contest five portions; losers retain carts",
+      "passed": true,
+      "evidence": {
+        "success": 5,
+        "businessRejections": 15,
+        "systemErrors": 0
+      }
+    },
+    {
+      "check": "duplicate payment/cancel/recovery competition preserves state and releases once",
+      "passed": true,
+      "evidence": {
+        "refundCalls": 1,
+        "queryCalls": 0,
+        "actualRefunds": 1,
+        "actualPayments": 1
+      }
+    },
+    {
+      "check": "two apps: conditional claim has one owner for each unexpired lease",
+      "passed": true,
+      "evidence": {
+        "attempts": 1
+      }
+    },
+    {
+      "check": "isolated raw child-status update demonstrates parent FK shared lock",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "capacity-first cancellation still rolls back when later order update fails",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "normal cancellation after injected failure releases one portion",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "real lock timeout retries the full checkout transaction with the original key",
+      "passed": true,
+      "evidence": {
+        "retryDelta": 1
+      }
+    },
+    {
+      "check": "retry exhaustion returns system 503, rolls back and keeps cart/capacity intact",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "original key succeeds after an exhausted retry and contention clears",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "real InnoDB deadlock rolls back earlier write and retries in a fresh transaction",
+      "passed": true,
+      "evidence": {
+        "retryDelta": 1,
+        "deadlockDelta": 1,
+        "row1": 11,
+        "row2": 2
+      }
+    },
+    {
+      "check": "all isolated business invariants reconcile after faults and races",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "load same-user replay keeps one committed order",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "load hot_session final orders/carts/capacity reconcile",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "load spread_sessions final orders/carts/capacity reconcile",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "load same-user replay keeps one committed order",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "load hot_session final orders/carts/capacity reconcile",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "load spread_sessions final orders/carts/capacity reconcile",
+      "passed": true,
+      "evidence": null
+    },
+    {
+      "check": "V2 through V5 applied once in isolated schema",
+      "passed": true,
+      "evidence": null
+    }
+  ],
+  "loadRuns": [
+    {
+      "scenario": "same_user_replay",
+      "poolPerInstance": 3,
+      "workers": 16,
+      "requestedSeconds": 10.0,
+      "elapsedSeconds": 10.23,
+      "outcomes": {
+        "success": 8085,
+        "business_rejection": 0,
+        "system_error": 0
+      },
+      "checkoutRequestsPerSecond": 790.18,
+      "successfulCheckoutsPerSecond": 790.18,
+      "allBusinessHttpRequestsPerSecond": 790.18,
+      "checkoutP50Ms": 18.17,
+      "checkoutP95Ms": 33.45,
+      "successP95Ms": 33.45,
+      "businessRejectionP95Ms": null,
+      "dbGlobalDelta": {
+        "Innodb_row_lock_time": 9172,
+        "Innodb_row_lock_waits": 5475,
+        "lock_deadlocks": 0
+      },
+      "schemaLockWaitPeak": {
+        "user/PRIMARY": 10
+      },
+      "poolActivePeak": 3,
+      "poolWaitThreadsPeak": 4,
+      "poolWaitCountDelta": 1008,
+      "poolWaitMillisDelta": 6701,
+      "dbRetryDelta": 0,
+      "metricSamplingErrors": [],
+      "workerErrors": [],
+      "samples": 17,
+      "clock": {
+        "implementation": "QueryPerformanceCounter()",
+        "resolutionSeconds": 1e-07
+      },
+      "finalBusinessDataVerified": true
+    },
+    {
+      "scenario": "hot_session",
+      "poolPerInstance": 3,
+      "workers": 16,
+      "requestedSeconds": 10.0,
+      "elapsedSeconds": 10.29,
+      "outcomes": {
+        "success": 1277,
+        "business_rejection": 66,
+        "system_error": 0
+      },
+      "checkoutRequestsPerSecond": 130.53,
+      "successfulCheckoutsPerSecond": 124.12,
+      "allBusinessHttpRequestsPerSecond": 378.77,
+      "checkoutP50Ms": 46.47,
+      "checkoutP95Ms": 62.62,
+      "successP95Ms": 62.5,
+      "businessRejectionP95Ms": 69.36,
+      "dbGlobalDelta": {
+        "Innodb_row_lock_time": 38324,
+        "Innodb_row_lock_waits": 2619,
+        "lock_deadlocks": 0
+      },
+      "schemaLockWaitPeak": {
+        "meal_session/PRIMARY": 15
+      },
+      "poolActivePeak": 3,
+      "poolWaitThreadsPeak": 5,
+      "poolWaitCountDelta": 3822,
+      "poolWaitMillisDelta": 88042,
+      "dbRetryDelta": 0,
+      "metricSamplingErrors": [],
+      "workerErrors": [],
+      "samples": 19,
+      "clock": {
+        "implementation": "QueryPerformanceCounter()",
+        "resolutionSeconds": 1e-07
+      },
+      "finalBusinessDataVerified": true
+    },
+    {
+      "scenario": "spread_sessions",
+      "poolPerInstance": 3,
+      "workers": 16,
+      "requestedSeconds": 10.0,
+      "elapsedSeconds": 10.04,
+      "outcomes": {
+        "success": 2811,
+        "business_rejection": 0,
+        "system_error": 0
+      },
+      "checkoutRequestsPerSecond": 279.91,
+      "successfulCheckoutsPerSecond": 279.91,
+      "allBusinessHttpRequestsPerSecond": 839.74,
+      "checkoutP50Ms": 20.24,
+      "checkoutP95Ms": 30.46,
+      "successP95Ms": 30.46,
+      "businessRejectionP95Ms": null,
+      "dbGlobalDelta": {
+        "Innodb_row_lock_time": 0,
+        "Innodb_row_lock_waits": 0,
+        "lock_deadlocks": 0
+      },
+      "schemaLockWaitPeak": {},
+      "poolActivePeak": 3,
+      "poolWaitThreadsPeak": 3,
+      "poolWaitCountDelta": 4962,
+      "poolWaitMillisDelta": 12406,
+      "dbRetryDelta": 0,
+      "metricSamplingErrors": [],
+      "workerErrors": [],
+      "samples": 17,
+      "clock": {
+        "implementation": "QueryPerformanceCounter()",
+        "resolutionSeconds": 1e-07
+      },
+      "finalBusinessDataVerified": true
+    },
+    {
+      "scenario": "same_user_replay",
+      "poolPerInstance": 10,
+      "workers": 16,
+      "requestedSeconds": 10.0,
+      "elapsedSeconds": 10.25,
+      "outcomes": {
+        "success": 7883,
+        "business_rejection": 0,
+        "system_error": 0
+      },
+      "checkoutRequestsPerSecond": 768.72,
+      "successfulCheckoutsPerSecond": 768.72,
+      "allBusinessHttpRequestsPerSecond": 768.72,
+      "checkoutP50Ms": 18.42,
+      "checkoutP95Ms": 35.29,
+      "successP95Ms": 35.29,
+      "businessRejectionP95Ms": null,
+      "dbGlobalDelta": {
+        "Innodb_row_lock_time": 15848,
+        "Innodb_row_lock_waits": 5374,
+        "lock_deadlocks": 0
+      },
+      "schemaLockWaitPeak": {
+        "user/PRIMARY": 75
+      },
+      "poolActivePeak": 6,
+      "poolWaitThreadsPeak": 0,
+      "poolWaitCountDelta": 14,
+      "poolWaitMillisDelta": 96,
+      "dbRetryDelta": 0,
+      "metricSamplingErrors": [],
+      "workerErrors": [],
+      "samples": 17,
+      "clock": {
+        "implementation": "QueryPerformanceCounter()",
+        "resolutionSeconds": 1e-07
+      },
+      "finalBusinessDataVerified": true
+    },
+    {
+      "scenario": "hot_session",
+      "poolPerInstance": 10,
+      "workers": 16,
+      "requestedSeconds": 10.0,
+      "elapsedSeconds": 10.06,
+      "outcomes": {
+        "success": 1284,
+        "business_rejection": 362,
+        "system_error": 0
+      },
+      "checkoutRequestsPerSecond": 163.69,
+      "successfulCheckoutsPerSecond": 127.69,
+      "allBusinessHttpRequestsPerSecond": 419.38,
+      "checkoutP50Ms": 52.09,
+      "checkoutP95Ms": 68.88,
+      "successP95Ms": 69.7,
+      "businessRejectionP95Ms": 65.57,
+      "dbGlobalDelta": {
+        "Innodb_row_lock_time": 123952,
+        "Innodb_row_lock_waits": 2929,
+        "lock_deadlocks": 0
+      },
+      "schemaLockWaitPeak": {
+        "meal_session/PRIMARY": 105
+      },
+      "poolActivePeak": 8,
+      "poolWaitThreadsPeak": 0,
+      "poolWaitCountDelta": 0,
+      "poolWaitMillisDelta": 0,
+      "dbRetryDelta": 0,
+      "metricSamplingErrors": [],
+      "workerErrors": [],
+      "samples": 18,
+      "clock": {
+        "implementation": "QueryPerformanceCounter()",
+        "resolutionSeconds": 1e-07
+      },
+      "finalBusinessDataVerified": true
+    },
+    {
+      "scenario": "spread_sessions",
+      "poolPerInstance": 10,
+      "workers": 16,
+      "requestedSeconds": 10.0,
+      "elapsedSeconds": 10.04,
+      "outcomes": {
+        "success": 2766,
+        "business_rejection": 0,
+        "system_error": 0
+      },
+      "checkoutRequestsPerSecond": 275.56,
+      "successfulCheckoutsPerSecond": 275.56,
+      "allBusinessHttpRequestsPerSecond": 826.68,
+      "checkoutP50Ms": 20.74,
+      "checkoutP95Ms": 29.65,
+      "successP95Ms": 29.65,
+      "businessRejectionP95Ms": null,
+      "dbGlobalDelta": {
+        "Innodb_row_lock_time": 0,
+        "Innodb_row_lock_waits": 0,
+        "lock_deadlocks": 0
+      },
+      "schemaLockWaitPeak": {},
+      "poolActivePeak": 5,
+      "poolWaitThreadsPeak": 0,
+      "poolWaitCountDelta": 0,
+      "poolWaitMillisDelta": 0,
+      "dbRetryDelta": 0,
+      "metricSamplingErrors": [],
+      "workerErrors": [],
+      "samples": 17,
+      "clock": {
+        "implementation": "QueryPerformanceCounter()",
+        "resolutionSeconds": 1e-07
+      },
+      "finalBusinessDataVerified": true
+    }
+  ],
+  "queryPlans": {
+    "idempotency": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": null,
+        "partitions": null,
+        "type": null,
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": null,
+        "filtered": null,
+        "Extra": "no matching row in const table"
+      }
+    ],
+    "cart": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "shopping_cart",
+        "partitions": null,
+        "type": "ref",
+        "possible_keys": "idx_cart_user_id",
+        "key": "idx_cart_user_id",
+        "key_len": "8",
+        "ref": "const",
+        "rows": 1,
+        "filtered": 100.0,
+        "Extra": null
+      }
+    ],
+    "refundPending": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "refund_task",
+        "partitions": null,
+        "type": "ref",
+        "possible_keys": "idx_refund_retry,idx_refund_lease",
+        "key": "idx_refund_lease",
+        "key_len": "66",
+        "ref": "const",
+        "rows": 1,
+        "filtered": 33.33,
+        "Extra": "Using where; Using filesort"
+      }
+    ],
+    "refundLease": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "refund_task",
+        "partitions": null,
+        "type": "ref",
+        "possible_keys": "idx_refund_retry,idx_refund_lease",
+        "key": "idx_refund_retry",
+        "key_len": "66",
+        "ref": "const",
+        "rows": 1,
+        "filtered": 33.33,
+        "Extra": "Using where; Using index; Using filesort"
+      }
+    ],
+    "idempotencyMatchingRow": [
+      {
+        "id": 1,
+        "select_type": "SIMPLE",
+        "table": "orders",
+        "partitions": null,
+        "type": "const",
+        "possible_keys": "uk_order_request",
+        "key": "uk_order_request",
+        "key_len": "75",
+        "ref": "const,const",
+        "rows": 1,
+        "filtered": 100.0,
+        "Extra": null
+      }
+    ],
+    "actualRefundCandidateUnion": [
+      {
+        "id": 1,
+        "select_type": "PRIMARY",
+        "table": "refund_task",
+        "partitions": null,
+        "type": "range",
+        "possible_keys": "idx_refund_retry,idx_refund_lease",
+        "key": "idx_refund_retry",
+        "key_len": "71",
+        "ref": null,
+        "rows": 1,
+        "filtered": 100.0,
+        "Extra": "Using where; Using index"
+      },
+      {
+        "id": 2,
+        "select_type": "UNION",
+        "table": "refund_task",
+        "partitions": null,
+        "type": "ref",
+        "possible_keys": "idx_refund_retry,idx_refund_lease",
+        "key": "idx_refund_retry",
+        "key_len": "66",
+        "ref": "const",
+        "rows": 1,
+        "filtered": 33.33,
+        "Extra": "Using where; Using index; Using filesort"
+      },
+      {
+        "id": 3,
+        "select_type": "UNION RESULT",
+        "table": "<union1,2>",
+        "partitions": null,
+        "type": "ALL",
+        "possible_keys": null,
+        "key": null,
+        "key_len": null,
+        "ref": null,
+        "rows": null,
+        "filtered": null,
+        "Extra": "Using temporary; Using filesort"
+      }
+    ]
+  },
+  "unitTests": {
+    "tests": 55,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "clientProtocolChecks": {
+    "wechat": 8,
+    "campusVue": 7
+  },
+  "backendJarSha256": "1e5dbd1e3fd6873d891f886120793a9ee0290223197bfe890df0fe883d9230e8",
+  "frontend": {
+    "build": "passed",
+    "browserClickAcceptance": "not executed"
+  },
+  "planReviewAt": "2026-10-15T00:03:36.230447+08:00",
+  "queryPlanLimits": "Refund table small and all tasks terminal. No large active-queue scan benchmark or forced index selection.",
+  "measurementScope": {
+    "dbGlobalDelta": "whole MySQL server, cumulative counters; lock time in ms",
+    "schemaLockWaitPeak": "sampled wait relationship rows, filtered to test schema; not thread count",
+    "poolCounters": "sum of two instances, wait time in ms",
+    "latencyClock": "QueryPerformanceCounter via perf_counter",
+    "loadDuration": "10 seconds requested, throughput uses measured elapsed including draining requests"
+  },
+  "limits": [
+    "no real funds or merchant integration",
+    "local two-process test, no cross-machine network partitions",
+    "single short sample per workload/pool, no production capacity claim",
+    "no end-to-end browser clicks",
+    "no end-to-end request CPU/IO attribution, no long-term soak or statistical confidence interval",
+    "no limiter, MQ, Redis distributed locks or reliable notification outbox"
+  ],
+  "discovery": {
+    "preFixHotCancellation": {
+      "durationSeconds": 5,
+      "poolPerInstance": 3,
+      "workers": 16,
+      "deadlocks": 115,
+      "workerErrors": 6,
+      "note": "old load collector mixed auxiliary operation errors into checkout statistics; no QPS comparison"
+    },
+    "rootCause": "foreign key parent shared lock then exclusive lock upgrade during cancellation",
+    "artifact": "cancellation-fk-deadlock.txt"
+  }
+}

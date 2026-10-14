@@ -20318,14 +20318,15 @@ function request(_ref) {var _ref$url = _ref.url,url = _ref$url === void 0 ? '' :
 
   var storeInfo = _store.default.state;
   // Keep the exact checkout payload across ambiguous network failures.
-  var checkoutStorageKey = 'sky-checkout-pending';
+  var checkoutOwner = uni.getStorageSync('sky-checkout-user') || storeInfo.token;
+  var checkoutStorageKey = 'sky-checkout-pending-' + checkoutOwner;
   if (url === '/user/order/submit' && method === 'POST') {
     var checkoutDraft = uni.getStorageSync(checkoutStorageKey);
-    if (checkoutDraft && checkoutDraft.owner === storeInfo.token) {
+    if (checkoutDraft && checkoutDraft.owner === checkoutOwner) {
       params = checkoutDraft.params;
     } else {
       params = Object.assign({}, params, {requestKey: 'wx_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)});
-      uni.setStorageSync(checkoutStorageKey, {owner: storeInfo.token, params: params});
+      uni.setStorageSync(checkoutStorageKey, {owner: checkoutOwner, params: params});
     }
   }
   var header = {
@@ -20346,12 +20347,13 @@ function request(_ref) {var _ref$url = _ref.url,url = _ref$url === void 0 ? '' :
       method: method,
       success: function success(res) {var
         data = res.data;
-        if (data.code == 200 || data.code === 1) {
+        if (res.statusCode === 200 && (data.code == 200 || data.code === 1)) {
+          if (url === '/user/user/login' && data.data && data.data.id != null) { uni.setStorageSync('sky-checkout-user', String(data.data.id)); }
           if (url === '/user/order/submit') { uni.removeStorageSync(checkoutStorageKey); }
           // store.commit('setLodding', false)
           resolve(res.data);
         } else {
-          if (url === '/user/order/submit' && res.statusCode < 500) { uni.removeStorageSync(checkoutStorageKey); }
+          if (url === '/user/order/submit' && res.statusCode === 200 && data.code === 0) { uni.removeStorageSync(checkoutStorageKey); }
           // store.commit('setLodding', true)
           reject(res.data);
         }

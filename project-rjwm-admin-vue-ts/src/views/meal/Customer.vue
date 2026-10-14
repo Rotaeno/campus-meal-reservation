@@ -24,7 +24,7 @@ export default Vue.extend({
     async api(method: string, url: string, payload?: any): Promise<any> {
       const response = await fetch(url, { method, headers: { 'Content-Type':'application/json', 'authentication':this.token }, body: payload === undefined ? undefined : JSON.stringify(payload) })
       if (response.status === 401) { this.logout(); throw new Error('登录已过期，请重新登录') }
-      const result = await response.json(); if (result.code !== 1) { throw new Error(result.msg || '操作失败') }; return result.data
+      const result = await response.json(); if (result.code !== 1) { const error: any = new Error(result.msg || '操作失败'); error.businessRejection = response.status === 200 && result.code === 0; throw error }; return result.data
     },
     async action(work: () => Promise<any>) { try { await work() } catch (error) { this.$message.error(error.message || '操作失败') } },
     async login() { await this.action(async () => { const user = await this.api('POST','/user/user/login',{code:this.loginCode}); this.token = user.token; this.userId = String(user.id); localStorage.setItem('campus-token',this.token); localStorage.setItem('campus-user',this.userId); this.restoreDraft(); await this.refresh() }) },
@@ -37,11 +37,13 @@ export default Vue.extend({
     async loadHistory() { await this.action(async () => { const history = await this.api('GET','/user/order/historyOrders?pageNum=1&pageSize=20'); this.orders = history.records.filter((order: any) => order.fulfillmentType === 2) }) },
     async add(dish: any) { await this.action(async () => { await this.api('POST','/user/shoppingCart/add',{dishId:dish.id}); await this.loadCart() }) },
     async sub(item: any) { await this.action(async () => { await this.api('POST','/user/shoppingCart/sub',{dishId:item.dishId,setmealId:item.setmealId,dishFlavor:item.dishFlavor}); await this.loadCart() }) },
-    async submit() { this.busy = true; await this.action(async () => {
+    async submit() { if (this.busy) { return }; this.busy = true; await this.action(async () => {
       if (!this.pendingRequest) { if (!this.sessionId) { throw new Error('请先选择餐次') }; if (!this.contactName.trim() || this.contactName.length > 32 || !/^[0-9]{11}$/.test(this.contactPhone)) { throw new Error('请填写32字以内的取餐人和11位手机号') }; this.pendingRequest = { requestKey:newKey(), mealSessionId:this.sessionId, contactName:this.contactName, contactPhone:this.contactPhone, remark:this.remark, payMethod:1, deliveryStatus:0, tablewareStatus:1 }; localStorage.setItem('campus-draft-'+this.userId,JSON.stringify(this.pendingRequest)) }
-      this.createdOrder = await this.api('POST','/user/order/submit',this.pendingRequest); this.$message.success('预订已确认，请完成模拟支付'); await this.loadCart(); await this.loadHistory()
+      try { this.createdOrder = await this.api('POST','/user/order/submit',this.pendingRequest) }
+      catch (error) { if (error.businessRejection) { this.pendingRequest = null; localStorage.removeItem('campus-draft-'+this.userId) }; throw error }
+      this.$message.success('预订已确认，请完成模拟支付'); await this.loadCart(); await this.loadHistory()
     }); this.busy = false },
-    newOrder() { this.pendingRequest = null; this.createdOrder = null; localStorage.removeItem('campus-draft-'+this.userId) },
+    newOrder() { if (this.busy) { return }; if (this.pendingRequest && !this.createdOrder) { this.$message.warning('上次预订结果尚未确认，请先恢复/重试，再开始下一笔'); return }; this.pendingRequest = null; this.createdOrder = null; localStorage.removeItem('campus-draft-'+this.userId) },
     async pay(order: any) { await this.action(async () => { await this.api('POST','/user/local/orders/'+order.number+'/pay'); this.$message.success('模拟支付成功'); await this.loadHistory(); this.sessions = await this.api('GET','/user/meal/sessions') }) },
     async cancel(order: any) { await this.action(async () => { await this.api('PUT','/user/order/cancel/'+order.id); this.$message.success('预订已取消，已支付订单进入退款流程'); await this.refresh() }) },
     async detail(order: any) { await this.action(async () => { const detail = await this.api('GET','/user/order/orderDetail/'+order.id); await this.$alert(detail.orderDetailList.map((item: any) => item.name+' × '+item.number+'，单价 ¥ '+item.amount).join('；'),'订单价格快照') }) },

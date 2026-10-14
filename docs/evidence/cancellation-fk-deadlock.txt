@@ -1,0 +1,22 @@
+2026-10-14 23:31:33，MySQL 8.0.46，本地双实例、16线程、每实例连接池3。
+来自实际 SHOW ENGINE INNODB STATUS 的必要摘录；测试库名、事务ID、线程ID、页记录和其他无关输出已移除。
+
+LATEST DETECTED DEADLOCK
+
+事务1正在执行：
+update meal_session set reserved_count=reserved_count-1 where id=2 and reserved_count>=1
+持有：meal_session / PRIMARY，lock mode S locks rec but not gap
+等待：meal_session / PRIMARY，同一记录，lock_mode X locks rec but not gap waiting
+
+事务2正在执行：
+update meal_session set reserved_count=reserved_count-1 where id=2 and reserved_count>=1
+持有：meal_session / PRIMARY，lock mode S locks rec but not gap
+等待：meal_session / PRIMARY，同一记录，lock_mode X locks rec but not gap waiting
+
+WE ROLL BACK TRANSACTION (2)
+
+5秒探查轮观察到115次死锁和6个负载工作线程遇到系统错误；这些错误发生于包含加购、下单、取消的流程，初版采集未按阶段拆分，因此不把该轮系统错误数和QPS当作精确的下单性能对照。
+更早10秒轮观察到112次死锁及6个工作线程错误，同样保留为问题发现证据。
+
+原因核对：订单status位于外键支持索引(meal_session_id,status)。隔离库内单独执行订单状态更新，观察到了父meal_session行的S记录锁，然后回滚该实验。
+修复：取消及迟到支付先在锁住订单的同一事务内释放容量，取得父行X锁，再更新订单状态；后续失败必须把容量释放一同回滚。修复后的持续负载结果另见reliability-2026-10-14.json。

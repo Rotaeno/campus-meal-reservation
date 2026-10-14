@@ -2,6 +2,8 @@ package com.sky.service;
 
 import com.sky.context.BaseContext;
 import com.sky.entity.Orders;
+import com.sky.entity.MealSession;
+import com.sky.mapper.MealSessionMapper;
 import com.sky.exception.OrderBusinessException;
 import com.sky.mapper.OrderMapper;
 import com.sky.service.impl.OrderServiceImpl;
@@ -23,6 +25,7 @@ class OrderServiceRegressionTest {
     @Mock private OrderMapper orderMapper;
     @Mock private WeChatPayUtil payment;
     @Mock private RefundService refunds;
+    @Mock private MealSessionMapper sessions;
     @Mock private WebSocketServer webSocketServer;
     @InjectMocks private OrderServiceImpl service;
     private final Clock clock=Clock.fixed(Instant.parse("2026-10-11T04:00:00Z"),ZoneId.of("Asia/Shanghai"));
@@ -84,5 +87,30 @@ class OrderServiceRegressionTest {
         Orders pickup=order(4,1); pickup.setFulfillmentType(2); when(orderMapper.getById(42L)).thenReturn(pickup);
         assertThrows(OrderBusinessException.class,()->service.complete(42L));
         verify(orderMapper,never()).transition(any(),any(),any(),any());
+    }
+    @Test void cancellationTakesMealExclusiveLockBeforeChildStatusCanTakeForeignKeySharedLock() {
+        Orders pickup=order(1,0); pickup.setMealSessionId(7L); pickup.setReservedQuantity(1);
+        when(orderMapper.getByIdForUpdate(42L)).thenReturn(pickup);
+        MealSession meal=new MealSession(); meal.setCutoffTime(LocalDateTime.now(clock).plusHours(1));
+        when(sessions.getById(7L)).thenReturn(meal);
+        when(sessions.release(7L,1)).thenReturn(1);
+        when(orderMapper.cancelIfMatches(eq(42L),eq(1),eq(0),anyString(),any())).thenReturn(1);
+        service.userCancelById(42L);
+        InOrder sequence=inOrder(sessions,orderMapper);
+        sequence.verify(sessions).release(7L,1);
+        sequence.verify(orderMapper).cancelIfMatches(eq(42L),eq(1),eq(0),anyString(),any());
+    }
+    @Test void latePaymentAlsoLocksMealBeforeChangingChildStatus() {
+        Orders pickup=order(1,0); pickup.setMealSessionId(7L); pickup.setReservedQuantity(1);
+        when(orderMapper.getByNumberForUpdate("demo-42")).thenReturn(pickup);
+        MealSession meal=new MealSession(); meal.setCutoffTime(LocalDateTime.now(clock).minusSeconds(1));
+        when(sessions.getById(7L)).thenReturn(meal);
+        when(sessions.release(7L,1)).thenReturn(1);
+        when(orderMapper.markLatePaid(eq(42L),any())).thenReturn(1);
+        service.paySuccess("demo-42",new BigDecimal("32.50"));
+        InOrder sequence=inOrder(sessions,orderMapper,refunds);
+        sequence.verify(sessions).release(7L,1);
+        sequence.verify(orderMapper).markLatePaid(eq(42L),any());
+        sequence.verify(refunds).enqueue(pickup);
     }
 }

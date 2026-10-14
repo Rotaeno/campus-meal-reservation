@@ -17,8 +17,9 @@ public interface RefundTaskMapper {
     @Select("select * from refund_task order by id desc limit 100")
     List<RefundTask> listAll();
 
-    @Select("select id from refund_task where (status='PENDING' and next_retry_time<=#{now}) " +
-            "or (status='PROCESSING' and lease_until<#{now}) order by id limit 20")
+    @Select("(select id from refund_task where status='PENDING' and next_retry_time<=#{now} order by next_retry_time limit 20) " +
+            "union all (select id from refund_task where status='PROCESSING' and lease_until<#{now} order by lease_until limit 20) " +
+            "order by id limit 20")
     List<Long> due(LocalDateTime now);
 
     @Update("update refund_task set status='PROCESSING',lease_token=#{token},lease_until=#{until},attempts=attempts+1,update_time=#{now} " +

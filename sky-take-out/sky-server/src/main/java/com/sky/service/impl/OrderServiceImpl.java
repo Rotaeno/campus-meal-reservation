@@ -14,6 +14,8 @@ import com.sky.service.*;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.*;
 import com.sky.websocket.WebSocketServer;
+import com.sky.reliability.RetryDatabaseTransaction;
+import com.sky.reliability.ReliabilityProbe;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +52,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired private WebSocketServer webSocketServer;
     @Autowired private RedisTemplate redisTemplate;
     @Autowired private Clock clock;
+    @Autowired private ReliabilityProbe reliability;
     private static final SecureRandom RANDOM=new SecureRandom();
     private LocalDateTime now() { return LocalDateTime.now(clock); }
 
     // Missing idempotency keys must not retain RR gap locks that block other users' inserts.
     // User/catalog row locks and the atomic capacity UPDATE still protect all mutable inputs.
-    @Override @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)
+    @Override @RetryDatabaseTransaction @Transactional(rollbackFor=Exception.class,isolation=Isolation.READ_COMMITTED)
     public OrderSubmitVO submitOrder(OrdersSubmitDTO request) {
         validateRequest(request);
         Long userId=userLock.lockCurrentUser();
@@ -106,6 +109,7 @@ public class OrderServiceImpl implements OrderService {
         quote.getDetails().forEach(detail -> detail.setOrderId(order.getId()));
         orderDetailMapper.insertBatch(quote.getDetails());
         shoppingCartMapper.deleteByUserId(userId);
+        reliability.submission(request.getRequestKey());
         return submitted(order);
     }
 
@@ -162,7 +166,7 @@ public class OrderServiceImpl implements OrderService {
         OrderPaymentVO result=response.toJavaObject(OrderPaymentVO.class); result.setPackageStr(response.getString("package")); return result;
     }
 
-    @Override @Transactional
+    @Override @RetryDatabaseTransaction @Transactional
     public void paySuccess(String number,BigDecimal paidAmount) {
         Orders order=orderMapper.getByNumberForUpdate(number);
         if (order==null) { throw new OrderBusinessException("订单不存在"); }
@@ -170,10 +174,11 @@ public class OrderServiceImpl implements OrderService {
         if (!Orders.UN_PAID.equals(order.getPayStatus())) { return; }
         LocalDateTime now=now();
         if (Orders.CANCELLED.equals(order.getStatus()) || expired(order,now)) {
-            if (orderMapper.markLatePaid(order.getId(),now)==1) {
-                if (!Orders.CANCELLED.equals(order.getStatus())) { releaseReservation(order); }
-                refunds.enqueue(order);
-            }
+            // Updating the child status can take a shared FK lock on the meal row.
+            // Take the parent X lock first, avoiding concurrent S -> X upgrades on release.
+            if (!Orders.CANCELLED.equals(order.getStatus())) { releaseReservation(order); }
+            if (orderMapper.markLatePaid(order.getId(),now)!=1) { throw new OrderBusinessException("订单状态已改变"); }
+            refunds.enqueue(order);
             return;
         }
         if (orderMapper.markPaid(order.getId(),now)!=1) { throw new OrderBusinessException("订单状态已改变"); }
@@ -189,13 +194,13 @@ public class OrderServiceImpl implements OrderService {
         return false;
     }
 
-    @Override @Transactional public boolean expireOrder(Long id) {
+    @Override @RetryDatabaseTransaction @Transactional public boolean expireOrder(Long id) {
         Orders order=orderMapper.getByIdForUpdate(id);
         if (order==null || !Orders.PENDING_PAYMENT.equals(order.getStatus()) || !Orders.UN_PAID.equals(order.getPayStatus()) || !expired(order,now())) { return false; }
         cancelLocked(order,"支付超时或餐次截单，自动取消"); return true;
     }
 
-    @Override @Transactional public void userCancelById(Long id) {
+    @Override @RetryDatabaseTransaction @Transactional public void userCancelById(Long id) {
         Orders order=ownedLocked(id);
         if (Orders.CANCELLED.equals(order.getStatus())) { return; }
         if (!Orders.PENDING_PAYMENT.equals(order.getStatus()) && !Orders.TO_BE_CONFIRMED.equals(order.getStatus())) { throw new OrderBusinessException("当前订单状态不能取消"); }
@@ -207,8 +212,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void cancelLocked(Orders order,String reason) {
-        if (orderMapper.cancelIfMatches(order.getId(),order.getStatus(),order.getPayStatus(),reason,now())!=1) { throw new OrderBusinessException("订单状态已改变"); }
+        // Order is locked. Release first in the SAME transaction: later SQL failure rolls it back.
+        // status is part of the meal FK-supporting secondary index; its update can acquire parent S.
         releaseReservation(order);
+        if (orderMapper.cancelIfMatches(order.getId(),order.getStatus(),order.getPayStatus(),reason,now())!=1) { throw new OrderBusinessException("订单状态已改变"); }
         if (Orders.PAID.equals(order.getPayStatus())) { refunds.enqueue(order); }
     }
     private void releaseReservation(Orders order) {
@@ -263,12 +270,12 @@ public class OrderServiceImpl implements OrderService {
         if (order==null || (deliveryOnly && Integer.valueOf(2).equals(order.getFulfillmentType()))
                 || orderMapper.transition(id,expected,next,now())!=1) { throw new OrderBusinessException("订单状态错误，自提订单须通过备餐和核销流程完成"); }
     }
-    @Override @Transactional public void rejection(OrdersRejectionDTO request) {
+    @Override @RetryDatabaseTransaction @Transactional public void rejection(OrdersRejectionDTO request) {
         Orders order=orderMapper.getByIdForUpdate(request.getId());
         if(order==null || !Orders.TO_BE_CONFIRMED.equals(order.getStatus())) { throw new OrderBusinessException("订单状态错误"); }
         cancelLocked(order,"商家拒单："+safeReason(request.getRejectionReason()));
     }
-    @Override @Transactional public void cancel(OrdersCancelDTO request) {
+    @Override @RetryDatabaseTransaction @Transactional public void cancel(OrdersCancelDTO request) {
         Orders order=orderMapper.getByIdForUpdate(request.getId());
         if(order==null) { throw new OrderBusinessException("订单不存在"); }
         if(Orders.CANCELLED.equals(order.getStatus())) { return; }

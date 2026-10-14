@@ -29,7 +29,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1 -Build
 | 工具与数据 | 仓库同级`.runtime`；可用`SKY_RUNTIME_DIR`调整 |
 | 构建资源与日志 | 仓库内`.local`，已忽略 |
 
-脚本不安装Windows服务，不修改系统Java或PATH；后台进程以隐藏窗口启动。本地密码和JWT密钥自动生成，保存于`.runtime/credentials.json`。bootstrap仅在没有业务表时导入初始SQL；Flyway在已有数据库上基线为V1，顺序执行V2、V3、V4，再次启动保留数据且验证迁移记录。
+脚本不安装Windows服务，不修改系统Java或PATH；后台进程以隐藏窗口启动。本地密码和JWT密钥自动生成，保存于`.runtime/credentials.json`。bootstrap仅在没有业务表时导入初始SQL；Flyway在已有数据库上基线为V1，顺序执行V2至V5，再次启动保留数据且验证迁移记录。
+
+真实故障及双实例实验使用独立测试库、独立Redis和持久化模拟端，不需要启动正常8080/8081服务。完整命令与故障开关见[可靠性迭代](docs/RELIABILITY_ITERATION.md)。故障屏障默认关闭；正常local演示未配置独立模拟端时仍使用轻量模拟，不能用该模式推断资金去重能力。
 
 ## 演示步骤
 

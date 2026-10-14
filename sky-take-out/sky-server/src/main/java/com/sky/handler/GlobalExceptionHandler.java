@@ -15,6 +15,13 @@ import java.sql.SQLIntegrityConstraintViolationException;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler(org.springframework.dao.DataAccessException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE)
+    public Result databaseUnavailable(org.springframework.dao.DataAccessException exception) {
+        // A system failure must not be counted as a business-rule rejection by clients/benchmarks.
+        log.error("数据库操作失败：{}", exception.getClass().getSimpleName());
+        return Result.error("数据库暂时繁忙，请稍后使用原请求键重试");
+    }
     @ExceptionHandler({org.springframework.http.converter.HttpMessageNotReadableException.class,
             org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
     public Result invalidRequest(Exception exception) { return Result.error("请求参数不合法"); }
@@ -26,7 +33,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result exceptionHandler(BaseException ex){
-        log.error("异常信息：{}", ex.getMessage());
+        log.info("业务请求拒绝：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
 

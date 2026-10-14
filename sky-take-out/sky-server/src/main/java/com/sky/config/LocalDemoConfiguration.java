@@ -9,6 +9,8 @@ import com.sky.service.UserService;
 import com.sky.utils.AliOssUtil;
 import com.sky.utils.WeChatPayUtil;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.ObjectProvider;
+import com.sky.reliability.LocalProviderClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -48,7 +50,7 @@ public class LocalDemoConfiguration {
 
     @Bean
     @Primary
-    public WeChatPayUtil localWeChatPayUtil(LocalPaymentFaults faults) {
+    public WeChatPayUtil localWeChatPayUtil(LocalPaymentFaults faults, ObjectProvider<LocalProviderClient> provider) {
         return new WeChatPayUtil() {
             @Override
             public JSONObject pay(String number, BigDecimal total, String description, String openid) {
@@ -67,9 +69,14 @@ public class LocalDemoConfiguration {
                 if (refund == null || total == null || refund.signum() <= 0 || refund.compareTo(total) > 0) {
                     throw new IllegalArgumentException("Invalid simulated refund amount");
                 }
+                LocalProviderClient ledger = provider.getIfAvailable();
+                if (ledger != null) { return ledger.refund(number, refundNumber, refund, total); }
                 return "{\"status\":\"LOCAL_SIMULATION\"}";
             }
-            @Override public String queryRefund(String number) { return "{\"status\":\"LOCAL_SIMULATION\"}"; }
+            @Override public String queryRefund(String number) {
+                LocalProviderClient ledger = provider.getIfAvailable();
+                return ledger == null ? "{\"status\":\"LOCAL_SIMULATION\"}" : ledger.query(number);
+            }
         };
     }
 
