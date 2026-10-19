@@ -4,6 +4,8 @@
 
 2026-10-19补充[状态历史与调度对照](STATE_HISTORY_AND_SCHEDULING.md)：现有业务协议不变，新增隔离测试库中的提交历史、独立状态模型和真实同单竞争；同一构建包分别比较调度池与异步退款执行。模拟支付在外部记录后、本地处理前中断时仍依赖回调重投，尚无主动支付对账。
 
+2026-10-19至20补充[退款核查与人工恢复](REFUND_REVIEW.md)：后续尝试先查原号、分别保存任务状态与平台最后结果、人工重置与记录同事务，并用短事务跳过被锁候选。介绍及贡献对照以[项目介绍](PROJECT_INTRODUCTIONS.md)为入口，测试结果以[分轮验证](VALIDATION.md)为准。
+
 系统在原外卖订单中增加fulfillmentType区分配送与自提。自提订单关联餐次并记录预占份数和随机取餐码；配送订单保留原收货地址。两种履约方式共用计价、支付、取消和退款处理，自提采用独立的备餐与核销入口。
 
 ## 预约规则与计价
@@ -79,7 +81,9 @@ payStatus为0未支付、1已支付、2已退款；refundStatus为NONE、PENDING
 | 下单、支付、取消、状态 | [OrderServiceImpl](../sky-take-out/sky-server/src/main/java/com/sky/service/impl/OrderServiceImpl.java) |
 | 计价与快照 | [OrderPricingService](../sky-take-out/sky-server/src/main/java/com/sky/service/OrderPricingService.java) |
 | 备餐与核销 | [MealSessionService](../sky-take-out/sky-server/src/main/java/com/sky/service/MealSessionService.java) |
-| 退款执行 | [RefundService](../sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java)、[RefundTaskMapper](../sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java) |
+| 退款执行 | [RefundService](../sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java)、[RefundPolicy](../sky-take-out/sky-server/src/main/java/com/sky/service/RefundPolicy.java)、[RefundDispatcher](../sky-take-out/sky-server/src/main/java/com/sky/service/RefundDispatcher.java)、[RefundTaskMapper](../sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java) |
 | 幂等、容量与约束 | [V2迁移](../sky-take-out/sky-server/src/main/resources/db/migration/V2__reservation_and_order_integrity.sql)、[V3迁移](../sky-take-out/sky-server/src/main/resources/db/migration/V3__pickup_without_delivery_address.sql)、[V4迁移](../sky-take-out/sky-server/src/main/resources/db/migration/V4__user_scoped_cart_indexes.sql) |
+| 退款索引与人工恢复 | [V5迁移](../sky-take-out/sky-server/src/main/resources/db/migration/V5__refund_lease_scan_index.sql)、[V6迁移](../sky-take-out/sky-server/src/main/resources/db/migration/V6__refund_review_and_provider_state.sql) |
 | 学生与商家页面 | [Customer.vue](../project-rjwm-admin-vue-ts/src/views/meal/Customer.vue)、[Management.vue](../project-rjwm-admin-vue-ts/src/views/meal/Management.vue) |
-| 可复现检查 | [smoke.py](../scripts/smoke.py)、[feature_checks.py](../scripts/feature_checks.py) |
+| 基础与故障检查 | [smoke.py](../scripts/smoke.py)、[feature_checks.py](../scripts/feature_checks.py)、[reliability_checks.py](../scripts/reliability_checks.py)、[refund_recovery_checks.py](../scripts/refund_recovery_checks.py) |
+| 过程与规模检查 | [background_checks.py](../scripts/background_checks.py)、[state_history_checks.py](../scripts/state_history_checks.py)、[scheduler_ablation.py](../scripts/scheduler_ablation.py)、[scale_checks.py](../scripts/scale_checks.py) |

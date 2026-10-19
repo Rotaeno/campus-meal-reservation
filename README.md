@@ -6,6 +6,18 @@
 
 本 README 集中提供项目介绍、贡献边界、业务规则、技术方案、失败处理、验证证据及面试问答依据。没有阅读过聊天记录的读者，可以从这里理解项目；需要核对实现时，继续打开各节的源码链接。网页工具可能截断长页面，完整内容可通过仓库的 **Raw README** 获取。
 
+**文档按用途阅读：**
+
+| 你现在要做什么 | 阅读入口 |
+| --- | --- |
+| 先理解项目、看相较原始项目的改进 | [改进对照、简历与面试介绍](docs/PROJECT_INTRODUCTIONS.md) |
+| 给模拟面试AI提供一个短文件 | [纯文本知识库](docs/INTERVIEW_KNOWLEDGE.txt) |
+| 理解代码与事务边界 | [技术设计](docs/TECHNICAL_DESIGN.md)，再按本文代码地图读源码 |
+| 核对实际测试及未验证能力 | [分轮验证记录](docs/VALIDATION.md)；[最新退款证据](docs/evidence/refund-review-2026-10-19.json) |
+| 在本地运行或复现 | [运行说明](LOCAL_RUN.md)，再选对应验证脚本 |
+
+介绍文档负责表达，技术设计负责实现解释，验证记录与证据文件负责结果；历史结果保留原日期。下方仍提供完整项目事实，详细实验按末尾资料链接查阅。
+
 ## 1 项目事实速览
 
 | 维度 | 已实现或已验证的事实 |
@@ -102,14 +114,15 @@ flowchart LR
 | 计价与快照 | [OrderPricingService](sky-take-out/sky-server/src/main/java/com/sky/service/OrderPricingService.java) |
 | 用户串行协调、购物车 | [UserLockService](sky-take-out/sky-server/src/main/java/com/sky/service/UserLockService.java)、[ShoppingCartServiceImpl](sky-take-out/sky-server/src/main/java/com/sky/service/impl/ShoppingCartServiceImpl.java) |
 | 餐次、备餐、自提核销 | [MealSessionService](sky-take-out/sky-server/src/main/java/com/sky/service/MealSessionService.java)、[MealSessionMapper](sky-take-out/sky-server/src/main/java/com/sky/mapper/MealSessionMapper.java) |
-| 退款任务 | [RefundService](sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java)、[RefundTaskMapper](sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java) |
+| 退款执行与核查 | [RefundService](sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java)、[RefundPolicy](sky-take-out/sky-server/src/main/java/com/sky/service/RefundPolicy.java)、[RefundDispatcher](sky-take-out/sky-server/src/main/java/com/sky/service/RefundDispatcher.java)、[RefundTaskMapper](sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java) |
 | 订单条件SQL | [OrderMapper](sky-take-out/sky-server/src/main/java/com/sky/mapper/OrderMapper.java)、[OrderMapper.xml](sky-take-out/sky-server/src/main/resources/mapper/OrderMapper.xml) |
 | 超时与业务时间 | [OrderTask](sky-take-out/sky-server/src/main/java/com/sky/task/OrderTask.java)、[BusinessTimeConfiguration](sky-take-out/sky-server/src/main/java/com/sky/config/BusinessTimeConfiguration.java) |
 | 身份与通知鉴权 | [IdentityContextFilter](sky-take-out/sky-server/src/main/java/com/sky/filter/IdentityContextFilter.java)、[AdminWebSocketFilter](sky-take-out/sky-server/src/main/java/com/sky/filter/AdminWebSocketFilter.java) |
 | 非local支付通知 | [PayNotifyController](sky-take-out/sky-server/src/main/java/com/sky/controller/notify/PayNotifyController.java)、[WeChatNotificationVerifier](sky-take-out/sky-server/src/main/java/com/sky/service/WeChatNotificationVerifier.java) |
 | 学生与商家页面 | [Customer.vue](project-rjwm-admin-vue-ts/src/views/meal/Customer.vue)、[Management.vue](project-rjwm-admin-vue-ts/src/views/meal/Management.vue) |
-| 数据库迁移 | [V2](sky-take-out/sky-server/src/main/resources/db/migration/V2__reservation_and_order_integrity.sql)、[V3](sky-take-out/sky-server/src/main/resources/db/migration/V3__pickup_without_delivery_address.sql)、[V4](sky-take-out/sky-server/src/main/resources/db/migration/V4__user_scoped_cart_indexes.sql) |
-| 验证脚本 | [smoke.py](scripts/smoke.py)、[feature_checks.py](scripts/feature_checks.py)、[check-wechat-request.cjs](scripts/check-wechat-request.cjs) |
+| 数据库迁移 | [V2](sky-take-out/sky-server/src/main/resources/db/migration/V2__reservation_and_order_integrity.sql)、[V3](sky-take-out/sky-server/src/main/resources/db/migration/V3__pickup_without_delivery_address.sql)、[V4](sky-take-out/sky-server/src/main/resources/db/migration/V4__user_scoped_cart_indexes.sql)、[V5](sky-take-out/sky-server/src/main/resources/db/migration/V5__refund_lease_scan_index.sql)、[V6](sky-take-out/sky-server/src/main/resources/db/migration/V6__refund_review_and_provider_state.sql) |
+| 基础与故障检查 | [smoke.py](scripts/smoke.py)、[feature_checks.py](scripts/feature_checks.py)、[reliability_checks.py](scripts/reliability_checks.py)、[refund_recovery_checks.py](scripts/refund_recovery_checks.py) |
+| 后台、状态与大表检查 | [background_checks.py](scripts/background_checks.py)、[state_history_checks.py](scripts/state_history_checks.py)、[order_state_model.py](scripts/order_state_model.py)、[scale_checks.py](scripts/scale_checks.py)、[scheduler_ablation.py](scripts/scheduler_ablation.py) |
 
 目录保留上游的`sky-take-out/`和`project-rjwm-admin-vue-ts/`命名，业务改造不是通过目录改名完成的。`sky-common`包含工具与公共结果，`sky-pojo`包含实体/DTO/VO，`sky-server`包含控制器、服务和持久化。
 
@@ -257,7 +270,7 @@ WHERE id = :id AND status = :expected AND pay_status = 1;
 
 故障检查包括金额和购物车价格篡改、停售、双用户越权、提前核销、截单后预订/取消、未支付超时、迟到支付、临时触发器强制明细失败、退款1次失败与6次失败、人工重试、崩溃租约恢复及全服务重启。触发器结束后删除，菜单临时变更在finally恢复；时间和崩溃状态仅对本次本地夹具设置。
 
-实际一次P95：同键提交222.65ms、20用户竞争5份132.64ms、并发核销77.47ms；详细数值见[验证记录](docs/VALIDATION.md)。这些是小批本地功能检查的请求耗时，包含线程调度和网络开销，**没有持续压测、优化前后对照或生产用户规模**。规则拒绝是预期业务结果，不是隐藏失败。
+实际一次P95：同键提交222.65ms、20用户竞争5份132.64ms、并发核销77.47ms；详细数值见[验证记录](docs/VALIDATION.md)。这些是小批本地功能检查的请求耗时，包含线程调度和网络开销；**该批检查不包含持续负载或前后性能对照，也不代表生产用户规模**。后续短时持续负载另按日期记录。规则拒绝是预期业务结果，不是隐藏失败。
 
 公开仓库提供[脱敏验证摘要](docs/evidence/validation-summary.json)。原日志、JWT、随机本地密钥、数据库目录和运行报告中的执行夹具不上传；克隆后可用脚本重新生成`.local`中的报告。摘要记录历史结果，不表示GitHub CI已执行。
 
@@ -347,14 +360,22 @@ local专用诊断：`POST /user/local/orders/{number}/pay`模拟支付；`POST /
 
 **校园午餐预订与自提系统：订单可靠性改造｜个人项目**
 
-- **背景与目标：**基于Spring Boot、MyBatis、MySQL、Redis与Vue，将苍穹外卖扩展为校园午餐预订与自提场景，围绕重复提交、容量竞争与异常退款完善订单链路。
-- **下单事务与幂等：**重构服务端计价并保存价格快照，以用户和请求键唯一约束实现持久化幂等；通过用户行锁协调购物车与结算，以条件SQL预占份数，将容量、订单、明细与购物车清理纳入同一事务。
-- **状态迁移与退款恢复：**通过条件更新控制状态迁移，以持久化任务、稳定退款号及租约支持退款恢复；分离扫描与外部调用，采用有界工作池隔离慢退款对调度的影响。
-- **效果验证：**本地双实例与独立持久化模拟账本下验证同键下单、容量竞争和进程中断恢复；独立状态模型检查同单并发响应及已提交变化，区分自动恢复与回调重投。典型数量结果为50次同键1单、20人抢5份成功5单及20次核销1次成功。
+项目仓库：github.com/Rotaeno/campus-meal-reservation
 
-**短介绍：**我基于苍穹外卖做了一个校园午餐预订与自提项目，新增餐次限额、截单和凭码取餐。我主要改造订单链路，包括服务端计价、持久化下单幂等、购物车与结算协调、状态迁移及退款恢复，并用真实接口和故障注入验证重复提交、名额竞争和服务重启等场景。支付与退款目前使用本地模拟。
+- **项目概述**：基于Spring Boot、MyBatis、MySQL二次开发苍穹外卖，新增校园餐次发布、限额预订及取餐核销，重点改造重复下单、容量竞争和异常退款处理。
+- **下单一致性**：通过用户与请求键唯一约束、请求指纹校验实现持久化幂等，使用用户行锁协调购物车与结算；服务端计价并保存快照，将容量条件更新、订单及明细写入和购物车清理纳入同一事务。
+- **状态与退款**：通过条件更新控制订单状态；取消已支付订单时持久化退款任务，结合稳定退款号、查询优先、退避重试和租约恢复处理迟到支付与调用异常，人工恢复原因及操作人与任务重置同事务记录。
+- **并发与故障验证**：在本地HTTP及模拟支付环境下验证50次同键提交仅1单、20用户争抢5份恰好成功5单、20次并发核销仅成功1次；进一步通过双实例竞争、实际进程中断及独立退款账本检查事务回滚和恢复行为。
 
-**长介绍展开顺序：**先交代上游基础与校园规则；再讲原计价、事务及状态问题；随后说明用户锁+唯一约束+容量条件SQL如何配合；接着讲退款任务为何在事务内保存、事务外调用；最后讲并发结果、一次死锁排查、验证范围与下一步。完整可直接练习的稿件见[PROJECT_INTRODUCTIONS.md](docs/PROJECT_INTRODUCTIONS.md)。
+**面试开场：**
+
+这个项目是我基于苍穹外卖做的校园午餐预订与自提系统。菜品、登录等基础模块沿用原项目，我主要新增餐次限额和取餐核销，并改造订单链路，后端使用Spring Boot、MyBatis和MySQL。
+
+我主要处理三个问题。第一是重复下单，通过用户与请求键唯一约束保存结果，同键同参数重试返回原订单，并用用户行锁协调购物车和结算。第二是名额竞争，通过条件SQL预占份数，把名额、订单明细和清购物车放在一个事务中，失败一起回滚。第三是退款恢复，取消已支付订单时先保存退款任务，外部调用放在事务外，后续尝试先查原退款号，再通过租约和重试处理进程中断，确认成功后才更新已退款状态。
+
+我用本地双实例、独立模拟账本和进程中断验证这些路径，也排查过并发取消中的外键锁升级死锁。支付和退款资金目前仍是模拟，没有真实商户对账。
+
+[介绍与改进对照表](docs/PROJECT_INTRODUCTIONS.md)提供展开稿、学习顺序和追问依据。
 
 ## 14 面试追问与回答依据
 
@@ -380,7 +401,7 @@ local专用诊断：`POST /user/local/orders/{number}/pay`模拟支付；`POST /
 | 截单后或没来取餐怎么办？ | 学生取消受限，由商家处理；没有自动核销或自动退款规则 | 业务状态与边界 |
 | 随机码就安全了吗？ | 还需要管理鉴权、所属订单、已支付/待自提状态及取餐窗口 | 随机数、授权、防重放 |
 | 为什么退款调用在事务外？ | 网络等待不能回滚平台操作，还会长期占数据库锁；先持久化意图，再调用与确认 | 最终一致性、长事务 |
-| 接口超时但平台已退款？ | 保留任务，复用原退款号重试/查询，确认后才标记退款；真实对账尚待接入 | 至少一次尝试、对账 |
+| 接口超时但平台已退款？ | 后续尝试先查原号，明确未找到才同号重提；本地FAILED不代表未退款，人工恢复留原因和操作人 | 至少一次尝试、结果核查 |
 | 退款调用能恰好一次吗？ | 不能；本地令牌保护写回，外部可能重复尝试，需要平台业务编号与状态确认 | 幂等与投递语义 |
 | 进程调用中退出怎么办？ | 已持久化任务保留，租约过期可重领；新的随机令牌阻止旧领取者写回 | 租约、条件领取 |
 | 为什么不用消息队列？ | 当前数据库任务表先满足单体恢复需求，未引入MQ；迁移到MQ仍要业务幂等与事务协调 | outbox、重复消费 |
@@ -389,7 +410,7 @@ local专用诊断：`POST /user/local/orders/{number}/pay`模拟支付；`POST /
 | Redis缓存价格为什么不用来结算？ | 列表缓存可能滞后，最终金额读取数据库并锁定；完整缓存TTL/失效策略仍需完善 | 一致性、击穿、雪崩 |
 | WebSocket会丢消息吗？ | 会，提交后发送未持久化；管理端可刷新订单列表，outbox/补偿尚未实现 | 事务提交回调、可靠通知 |
 | 数据库事务能回滚微信退款吗？ | 不能，二者不是共同事务；当前用持久化意图和结果确认恢复 | 本地事务、分布式一致性 |
-| 50并发是不是高并发能力证明？ | 只证明这批请求中的正确性，没有长期QPS、生产规模或性能提升比例 | 负载模型、P95、错误率 |
+| 50并发是不是高并发能力证明？ | 只证明该批正确性；另有本机短时负载，但没有生产规模或生产容量认证 | 负载模型、P95、错误率 |
 | 支付真接通了吗？ | local模拟+加密协议样本测试；真实商户、证书管理、通知和对账仍需联调 | 协议验证与系统验收 |
 | 后续瓶颈可能在哪？ | 同用户结算串行、热门餐次行竞争、扫描任务与表增长；需实测后再优化 | 热点、索引、容量规划 |
 
@@ -422,8 +443,10 @@ local专用诊断：`POST /user/local/orders/{number}/pay`模拟支付；`POST /
 - [详细事务与退款设计](docs/TECHNICAL_DESIGN.md)
 - [可靠性迭代、真实故障窗口、负载与面试追问](docs/RELIABILITY_ITERATION.md)
 - [后台自动恢复、大表执行计划与多轮持续负载](docs/BACKGROUND_RECOVERY.md)
+- [同单状态历史与调度对照](docs/STATE_HISTORY_AND_SCHEDULING.md)
+- [退款核查、人工恢复及受阻候选](docs/REFUND_REVIEW.md)
 - [单文件纯文本面试知识库](docs/INTERVIEW_KNOWLEDGE.txt)
-- [验证记录](docs/VALIDATION.md)与[脱敏摘要](docs/evidence/validation-summary.json)
+- [分轮验证记录](docs/VALIDATION.md)：[基础摘要](docs/evidence/validation-summary.json)、[可靠性](docs/evidence/reliability-2026-10-14.json)、[后台恢复](docs/evidence/background-2026-10-15.json)、[状态历史](docs/evidence/state-history-2026-10-19.json)、[最新退款核查](docs/evidence/refund-review-2026-10-19.json)
 - [三份介绍与面试追问](docs/PROJECT_INTRODUCTIONS.md)
 - [已完成与后续改进](IMPROVEMENT_PLAN.md)
 - [来源与第三方文件](NOTICE.md)
