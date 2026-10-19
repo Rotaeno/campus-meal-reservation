@@ -120,11 +120,19 @@ public class WeChatPayUtil {
         CloseableHttpResponse response = httpClient.execute(httpGet);
         try {
             String bodyAsString = EntityUtils.toString(response.getEntity());
-            return bodyAsString;
+            return refundQueryResponse(response.getStatusLine().getStatusCode(),bodyAsString);
         } finally {
             httpClient.close();
             response.close();
         }
+    }
+
+    private static String refundQueryResponse(int code,String body) throws java.io.IOException {
+        if(code==404 && "RESOURCE_NOT_EXISTS".equals(JSON.parseObject(body).getString("code"))) {
+            return "{\"status\":\"NOT_FOUND\"}";
+        }
+        if(code<200 || code>=300) { throw new java.io.IOException("Refund query rejected: HTTP "+code); }
+        return body;
     }
 
     /**

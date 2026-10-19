@@ -75,7 +75,9 @@ public class LocalDemoConfiguration {
             }
             @Override public String queryRefund(String number) {
                 LocalProviderClient ledger = provider.getIfAvailable();
-                return ledger == null ? "{\"status\":\"LOCAL_SIMULATION\"}" : ledger.query(number);
+                // The lightweight demo has no durable external ledger to query.
+                // Do not turn a failed first submission into a fabricated success.
+                return ledger == null ? "{\"status\":\"NOT_FOUND\"}" : ledger.query(number);
             }
         };
     }

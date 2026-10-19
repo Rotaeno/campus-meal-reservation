@@ -88,6 +88,7 @@ def seed(lab, rows):
                            'VALUES(%s,1,%s,NULL,%s,0,10,%s,2,%s,1,%s)', pending)
     lab.sql('UPDATE meal_session SET reserved_count=(SELECT COUNT(*) FROM orders WHERE meal_session_id=meal_session.id AND status<>6)')
     lab.sql('ANALYZE TABLE orders,refund_task,meal_session')
+    lab.sql("UPDATE refund_task SET provider_state=CASE WHEN status='SUCCEEDED' THEN 'SUCCEEDED' WHEN status='PROCESSING' THEN 'PROCESSING' ELSE 'UNKNOWN' END")
     lab.invariants()
     return {'syntheticRefundTasks': rows, 'syntheticOrders': rows + 5000, 'refundDistribution': groups,
             'pendingUnpaidOrders': 5000, 'onlyCutoffInitiallyDue': 500, 'fixturesNeverSentToProvider': True}
@@ -119,6 +120,39 @@ def measure(lab, query, arguments, repeats):
     return result, selected
 
 
+def measure_locking(lab, query, arguments, repeats):
+    """Execute actual production locking SQL inside a READ COMMITTED TX."""
+    times = []
+    with lab.db() as db, db.cursor() as cursor:
+        cursor.execute('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED')
+        try:
+            for _ in range(3):
+                db.begin()
+                cursor.execute(query, arguments)
+                cursor.fetchall()
+                db.rollback()
+            cursor.execute("SHOW SESSION STATUS WHERE Variable_name IN ('Handler_read_key','Handler_read_next','Handler_read_rnd_next')")
+            before = dict(cursor.fetchall())
+            for _ in range(repeats):
+                db.begin()
+                start = time.perf_counter()
+                cursor.execute(query, arguments)
+                selected = [row[0] for row in cursor.fetchall()]
+                times.append((time.perf_counter() - start) * 1000)
+                db.rollback()
+            cursor.execute("SHOW SESSION STATUS WHERE Variable_name IN ('Handler_read_key','Handler_read_next','Handler_read_rnd_next')")
+            after = dict(cursor.fetchall())
+            db.begin()
+            cursor.execute('EXPLAIN ANALYZE ' + query, arguments)
+            plan = cursor.fetchone()[0]
+        finally:
+            db.rollback()
+    return dict(repeats=repeats, warmupQueries=3, p50Ms=percentile(times, .5), p95Ms=percentile(times, .95),
+                returnedRows=len(selected), isolation='READ COMMITTED', realTransaction=True, newTransactionPerSample=True,
+                handlerReadsPerCall={key: round((int(after[key]) - int(value)) / repeats, 2) for key, value in before.items()},
+                explainAnalyze=plan), selected
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--rows', type=int, default=100000)
@@ -132,6 +166,28 @@ def main():
         lab.setup()
         report['environment'] = lab.environment_info()
         report['fixture'] = seed(lab, args.rows)
+        values = {'now': datetime.now(), 'before': datetime.now() - timedelta(minutes=15)}
+        for method in ('pendingCandidates', 'expiredLeaseCandidates'):
+            query = mapper_select('sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java', method)
+            result, selected = measure_locking(lab, *bind(query, values), args.repeats)
+            report['queryResults'][method] = result
+            selected_rows = lab.sql('SELECT status,next_retry_time,lease_until FROM refund_task WHERE id IN ('
+                                    + ','.join(['%s'] * len(selected)) + ')', tuple(selected))
+            eligible = all((row['status'] == 'PENDING' and row['next_retry_time'] <= values['now'])
+                           if method == 'pendingCandidates' else
+                           (row['status'] == 'PROCESSING' and row['lease_until'] < values['now']) for row in selected_rows)
+            lab.check('large production ' + method + ' uses a real transaction and returns twenty unique tasks',
+                      len(selected) == len(set(selected)) == 20 and eligible)
+        pending_query, pending_args = bind(mapper_select('sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java', 'pendingCandidates'), values)
+        with lab.db() as blocker, blocker.cursor() as cursor:
+            blocker.begin()
+            cursor.execute(pending_query, pending_args)
+            locked = {row[0] for row in cursor.fetchall()}
+            result, selected = measure_locking(lab, pending_query, pending_args, args.repeats)
+            report['queryResults']['pendingCandidatesLockedPrefix'] = result
+            lab.check('large active queue skips twenty real locked candidates and returns the next eligible batch',
+                      len(selected) == len(set(selected)) == 20 and not locked.intersection(selected))
+            blocker.rollback()
         timeout = mapper_select('sky-take-out/sky-server/src/main/java/com/sky/mapper/OrderMapper.java', 'findExpired')
         due = mapper_select('sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java', 'due')
         now = datetime.now()

@@ -24,12 +24,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1 -Build
 | 接口文档 | http://127.0.0.1:8080/doc.html |
 | 后端 | Spring Boot 2.7.3、JDK 8、端口8080 |
 | 数据库 | MySQL 8.0.46，127.0.0.1:3306，`sky_take_out` |
-| 数据表 | 原11张，加餐次与退款任务2张，以及Flyway历史表，共14张 |
+| 数据表 | 原11张，加餐次、退款任务和人工恢复记录3张，以及Flyway历史表，完整迁移至V6后共15张 |
 | Redis | 7.4.3，127.0.0.1:6379，逻辑库10 |
 | 工具与数据 | 仓库同级`.runtime`；可用`SKY_RUNTIME_DIR`调整 |
 | 构建资源与日志 | 仓库内`.local`，已忽略 |
 
-脚本不安装Windows服务，不修改系统Java或PATH；后台进程以隐藏窗口启动。本地密码和JWT密钥自动生成，保存于`.runtime/credentials.json`。bootstrap仅在没有业务表时导入初始SQL；Flyway在已有数据库上基线为V1，顺序执行V2至V5，再次启动保留数据且验证迁移记录。
+脚本不安装Windows服务，不修改系统Java或PATH；后台进程以隐藏窗口启动。本地密码和JWT密钥自动生成，保存于`.runtime/credentials.json`。bootstrap仅在没有业务表时导入初始SQL；Flyway在已有数据库上基线为V1，顺序执行V2至V6，再次启动保留数据且验证迁移记录。bootstrap同时接受原11表、V6前14表和V6后15表，不因新增恢复记录表而拒绝重复启动。
 
 真实故障及双实例实验使用独立测试库、独立Redis和持久化模拟端，不需要启动正常8080/8081服务。完整命令与故障开关见[可靠性迭代](docs/RELIABILITY_ITERATION.md)。故障屏障默认关闭；正常local演示未配置独立模拟端时仍使用轻量模拟，不能用该模式推断资金去重能力。
 
@@ -105,3 +105,5 @@ python scripts/feature_checks.py --replay-only
 检查结果见[验证记录](docs/VALIDATION.md)，三份介绍见[简历与面试材料](docs/PROJECT_INTRODUCTIONS.md)，设计说明见[技术设计](docs/TECHNICAL_DESIGN.md)。
 
 2026-10-19新增隔离实验：`python scripts/state_history_checks.py`检查真实同单竞争与提交历史，`python scripts/scheduler_ablation.py --rounds 3`分别测量调度线程和异步执行的作用。两者顺序运行，创建唯一测试库，不写正常业务库。前者的测试触发器使用既有root连接创建，不修改全局数据库配置；后者的同步对照仅在local显式实验开关下生效。方法与边界见[本轮说明](docs/STATE_HISTORY_AND_SCHEDULING.md)。
+
+退款核查迭代通过Flyway V6增加平台最后结果和人工恢复记录，正常库本轮未运行迁移。`python scripts/refund_recovery_checks.py`使用独立库检查真实退避耗尽、人工恢复回滚/竞争及整页行锁；管理端重试现在必须填写原因，接口JSON为`{"reason":"核实说明"}`。新扫描依赖项目原本要求的MySQL 8，默认配置与测试变体见[退款核查说明](docs/REFUND_REVIEW.md)。

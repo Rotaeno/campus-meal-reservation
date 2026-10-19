@@ -31,9 +31,10 @@
       </el-table>
       <div class="redeem"><el-input v-model="pickupCode" placeholder="输入学生出示的22位取餐码" maxlength="22" /><el-button type="primary" @click="redeem">核销取餐</el-button></div>
     </el-card>
-    <el-card class="section"><div slot="header">退款任务 <small>退款确认后订单才显示“已退款”；失败任务可人工重试。</small></div>
-      <el-table :data="refunds"><el-table-column prop="orderId" label="订单ID" /><el-table-column prop="status" label="状态" /><el-table-column prop="attempts" label="处理次数" /><el-table-column prop="failures" label="失败次数" /><el-table-column prop="nextRetryTime" label="下次处理" /><el-table-column label="操作"><template slot-scope="s"><el-button v-if="s.row.status === 'FAILED'" size="mini" @click="retry(s.row)">重试</el-button></template></el-table-column></el-table>
+    <el-card class="section"><div slot="header">退款任务 <small>本地处理失败不代表资金未退；人工重试先查询原退款结果。</small></div>
+      <el-table :data="refunds"><el-table-column prop="orderId" label="订单ID" width="90" /><el-table-column label="处理状态" width="120"><template slot-scope="s">{{ taskState(s.row.status) }}</template></el-table-column><el-table-column label="平台最后结果" width="130"><template slot-scope="s">{{ providerState(s.row.providerState) }}</template></el-table-column><el-table-column prop="attempts" label="处理次数" width="90" /><el-table-column prop="failures" label="失败次数" width="90" /><el-table-column prop="lastError" label="诊断" min-width="170" /><el-table-column prop="nextRetryTime" label="下次处理" min-width="160" /><el-table-column label="操作" width="180"><template slot-scope="s"><el-button v-if="s.row.status === 'FAILED'" size="mini" @click="retry(s.row)">重试</el-button><el-button size="mini" @click="history(s.row)">记录</el-button></template></el-table-column></el-table>
     </el-card>
+    <el-dialog title="人工恢复记录" :visible.sync="reviewVisible" width="680px"><el-table :data="reviews"><el-table-column prop="operatorId" label="操作人ID" width="100" /><el-table-column prop="reason" label="原因" /><el-table-column prop="previousProviderState" label="重试前平台结果" width="150" /><el-table-column prop="createTime" label="时间" width="170" /></el-table></el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -48,7 +49,7 @@ function stamp(date: Date): string {
 export default Vue.extend({
   data() { const date = new Date(); date.setDate(date.getDate() + 1); date.setHours(10,30,0,0); return {
     form: { title: '校园午餐', capacity: 50, cutoffTime: stamp(date), pickupStart: stamp(new Date(date.getTime()+3600000)), pickupEnd: stamp(new Date(date.getTime()+9000000)) },
-    sessions: [] as Session[], selected: null as Session | null, orders: [] as MealOrder[], preparation: [] as any[], refunds: [] as any[], pickupCode: '', busy: false, timer: 0
+    sessions: [] as Session[], selected: null as Session | null, orders: [] as MealOrder[], preparation: [] as any[], refunds: [] as any[], reviews: [] as any[], reviewVisible: false, pickupCode: '', busy: false, timer: 0
   } },
   mounted() { this.refresh(); this.timer = window.setInterval(() => this.refresh(), 10000) },
   beforeDestroy() { window.clearInterval(this.timer) },
@@ -64,7 +65,10 @@ export default Vue.extend({
     async ready(order: MealOrder) { await this.action(() => this.api('put','/meal/orders/'+order.id+'/ready')) },
     async cancel(order: MealOrder) { await this.action(() => this.api('put','/order/cancel',{id:order.id,cancelReason:'餐次运营取消'})) },
     async redeem() { await this.action(() => this.api('post','/meal/redeem',{pickupCode:this.pickupCode})); this.pickupCode = '' },
-    async retry(task: any) { await this.action(() => this.api('post','/refunds/'+task.id+'/retry')) },
+    async retry(task: any) { try { const answer: any = await this.$prompt('填写核实情况或重试原因（200字以内）。重试沿用原退款号，先查询平台结果。','人工恢复',{inputValidator:(v: string) => !!v && !!v.trim() && v.length <= 200, inputErrorMessage:'请填写200字以内的原因'}); await this.action(() => this.api('post','/refunds/'+task.id+'/retry',{reason:answer.value})) } catch (e) { if (e !== 'cancel' && e !== 'close') { this.$message.error(e.message || '操作失败') } } },
+    async history(task: any) { try { this.reviews = await this.api('get','/refunds/'+task.id+'/reviews'); this.reviewVisible = true } catch (e) { this.$message.error(e.message || '加载失败') } },
+    taskState(value: string) { const names: {[key: string]: string} = {PENDING:'待处理',PROCESSING:'执行中',SUCCEEDED:'已确认',FAILED:'待人工处理'}; return names[value] || value },
+    providerState(value: string) { const names: {[key: string]: string} = {UNKNOWN:'结果未知',PROCESSING:'处理中',SUCCEEDED:'已成功',CLOSED:'已关闭',ABNORMAL:'异常',NOT_FOUND:'未查到'}; return names[value] || '结果未知' },
     state(order: MealOrder) { const names: {[key: number]: string} = {1:'待支付',2:'待接单',3:'备餐中',4:'待自提',5:'已核销',6:'已取消'}; return names[order.status] + (order.refundStatus !== 'NONE' ? ' · 退款'+order.refundStatus : '') }
   }
 })

@@ -224,7 +224,7 @@ def main():
     with zipfile.ZipFile(export_path) as archive:
         assert 'xl/workbook.xml' in archive.namelist()
     RESULTS.append({'check': 'Excel report export', 'passed': True})
-    RESULTS.append({'check': '13 business tables and Flyway history', 'passed': sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='sky_take_out'") == '14'})
+    RESULTS.append({'check': '14 business tables and Flyway history', 'passed': sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='sky_take_out'") == '15'})
     assert RESULTS[-1]['passed']
     print(f'PASS {len(RESULTS)} checks; completed demo order {order["orderNumber"]}', flush=True)
     return order

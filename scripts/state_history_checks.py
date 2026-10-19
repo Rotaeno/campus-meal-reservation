@@ -178,17 +178,30 @@ def overlap(lab, job, plan):
         cursor.execute('SELECT id FROM orders WHERE id=%s FOR UPDATE', (order['id'],))
         pending = [pool.submit(call, i, operation) for i, operation in enumerate(plan)]
         barrier.wait(timeout=5)
+        observations, failure = [], None
         try:
             def waiting():
-                return lab.scalar('''SELECT COUNT(DISTINCT w.REQUESTING_ENGINE_TRANSACTION_ID)
+                count = lab.scalar('''SELECT COUNT(DISTINCT w.REQUESTING_ENGINE_TRANSACTION_ID)
                     FROM performance_schema.data_lock_waits w JOIN performance_schema.data_locks l
                     ON w.REQUESTING_ENGINE_LOCK_ID=l.ENGINE_LOCK_ID AND w.ENGINE=l.ENGINE
                     WHERE l.OBJECT_SCHEMA=%s AND l.OBJECT_NAME='orders' ''', (lab.schema,), root=True)
-            blocked = wait(lambda: waiting() >= len(plan), timeout=.8, description='all same-order requests waiting in MySQL')
+                # A CAS with a mismatching state can legitimately reject before
+                # requesting the row lock. Do not require it to block artificially.
+                rejected = [index for index, future in enumerate(pending) if future.done()
+                            and plan[index] in ('confirm', 'ready') and future.result()['result'] == 'reject']
+                observations.append(dict(waiters=count, earlyRejected=rejected))
+                return count + len(rejected) >= len(plan)
+            blocked = wait(waiting, timeout=3, description='conflicting requests waiting or valid early CAS rejections')
+        except Exception as error:
+            failure = error
         finally:
             blocker.rollback()
         history = [future.result(timeout=25) for future in pending]
-    return history, bool(blocked)
+    if failure:
+        (lab.directory / ('overlap-failure-' + str(order['id']) + '.json')).write_text(
+            json.dumps(dict(plan=plan, observations=observations, history=history), indent=2), encoding='utf-8')
+        raise failure
+    return history, dict(confirmed=bool(blocked), observations=observations)
 
 
 def concurrent_case(lab, target, operations, seed):
@@ -206,6 +219,7 @@ def concurrent_case(lab, target, operations, seed):
     evidence = dict(target=target, seed=seed, initial=initial.__dict__, final=final.__dict__,
                     rules=rules.__dict__, history=history, witness=ordering, committedChanges=len(rows),
                     databaseOverlapConfirmed=bool(blocked), compensatingRequests=0)
+    evidence['databaseOverlapObservation'] = blocked
     (lab.directory / ('history-' + target + '-' + str(seed) + '.json')).write_text(
         json.dumps(dict(evidence, committedHistory=rows), indent=2, default=str), encoding='utf-8')
     lab.check('same-order ' + target + ' seed ' + str(seed) + ': legal real-time HTTP history and committed changes',
@@ -217,15 +231,16 @@ def staged_case(lab, seed):
     job = prepare(lab, 'pickup_paid')
     order, initial = job[2], state(lab, job[2])
     rules = Rules(expired=True, cutoff=True, pickup=True)
-    history = []
+    history, overlap_observations = [], []
     # Seven operations, four waves. Earlier responses precede later invocations.
     # Two redemptions in the last wave must produce exactly one final success
     # across both redemption waves, regardless of the middle wave's ordering.
     for wave in (['ready', 'redeem'], ['confirm'], ['ready', 'redeem'], ['redeem', 'redeem']):
         plan = list(wave)
         random.Random(seed + len(history)).shuffle(plan)
-        calls, _ = overlap(lab, job, plan)
+        calls, observation = overlap(lab, job, plan)
         history.extend(calls)
+        overlap_observations.append(observation)
     final = state(lab, order)
     ordering = witness(initial, final, history, rules)
     rows = audit(lab, order)
@@ -236,6 +251,7 @@ def staged_case(lab, seed):
     evidence = dict(target='staged_fulfillment', seed=seed, history=history, witness=ordering,
                     initial=initial.__dict__, final=final.__dict__, precedenceEdges=precedence,
                     committedChanges=len(rows), compensatingRequests=0, databaseOverlapConfirmed=True)
+    evidence['databaseOverlapObservation'] = overlap_observations
     (lab.directory / ('history-staged-' + str(seed) + '.json')).write_text(
         json.dumps(dict(evidence, committedHistory=rows), indent=2, default=str), encoding='utf-8')
     return job, evidence
@@ -333,6 +349,9 @@ def main():
     seeds = [int(value) for value in args.seeds.split(',')]
     assert 1 <= len(seeds) <= 10
     lab = Lab()
+    # Orchestration budget must be lower than DB lock timeout, with enough room
+    # for local HTTP/provider dispatch. This is not a production latency target.
+    lab.lock_wait_seconds = 5
     report = dict(date=datetime.now().astimezone().isoformat(), status='running', checks=lab.checks,
                   jarSha256=hashlib.sha256(lab.jar.read_bytes()).hexdigest(), seeds=seeds, histories=[])
     observer = None

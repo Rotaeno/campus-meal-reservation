@@ -16,7 +16,7 @@
 | 核心改造 | 服务端计价和价格快照、持久化请求幂等、购物车与结算协调、条件状态更新、迟到支付处理、持久化退款任务、归属校验与身份清理 |
 | 技术架构 | 单体 Spring Boot 2.7.3 + Java 8 + MyBatis + MySQL 8；Redis用于菜单缓存及营业状态；Vue 2 + TypeScript；Nginx反向代理；Flyway迁移 |
 | 一致性方案 | 同库业务使用本地事务、行锁、唯一约束和条件SQL；退款使用持久化意图、稳定退款号、租约及重试，不是跨支付平台的原子事务 |
-| 验证记录 | 2026-10-11：43项单测及基础检查；2026-10-14：55项单测及可靠性迭代；2026-10-15：58项单测、自动后台恢复、大表及多轮负载；2026-10-19：59项单测、24组同单历史/126次操作、18组调度对照及31项故障回归；均保留分轮记录 |
+| 验证记录 | 2026-10-11：43项单测及基础检查；2026-10-14：55项单测及可靠性迭代；2026-10-15：58项单测、自动恢复、大表及多轮负载；2026-10-19：59项单测、24组同单历史/126次操作及18组调度对照；2026-10-19至20：63项单测、14项退款核查及既有链路回归；均保留分轮记录 |
 | 并发正确性结果 | 50个同键请求只创建1单；20用户争抢5份只成功5单；20次并发接单与20次并发核销分别只有1次状态迁移成功 |
 | 真实运行范围 | 本地Java、MySQL、Redis、Nginx、HTTP接口和Vue构建；微信授权、支付、退款、OSS、地图由local适配器模拟 |
 | 尚未完成 | 真实商户联调、支付对账、证书轮换、跨机器部署与数据库切换、数小时稳定性及生产容量认证、可靠通知outbox、浏览器自动点击与微信开发者工具验收 |
@@ -29,7 +29,9 @@
 
 2026-10-19增加[同单状态历史与调度对照](docs/STATE_HISTORY_AND_SCHEDULING.md)：独立业务模型检查并发响应与实时先后关系，隔离库的事务内记录检查已提交状态链；把后台自动退款与显式支付回调重投分开验证。使用同一构建包做同步/异步执行与1/2调度线程的对照，再检查退款工作线程占满的边界。测试记录不是生产审计功能，同步对照仅local显式开启，默认关闭。
 
-本轮24组历史共126次操作、27项过程与恢复检查、18组调度对照均通过；59项Java单测及31项旧故障回归通过，模型检查器另有5项检查。原始时间、逐次操作及限制见[本轮脱敏证据](docs/evidence/state-history-2026-10-19.json)。仅增加调度线程能隔离超时扫描，不能让同步退款逐笔循环并行；异步退款工作线程全占满时，普通退款仍等待。支付回调丢失仍需要重投，尚无主动支付对账。
+该轮24组历史共126次操作、27项过程与恢复检查、18组调度对照均通过；59项Java单测及31项旧故障回归通过，模型检查器另有5项检查。原始时间、逐次操作及限制见[该轮脱敏证据](docs/evidence/state-history-2026-10-19.json)。仅增加调度线程能隔离超时扫描，不能让同步退款逐笔循环并行；异步退款工作线程全占满时，普通退款仍等待。支付回调丢失仍需要重投，尚无主动支付对账。
+
+2026-10-19至20完成[退款核查与人工恢复](docs/REFUND_REVIEW.md)：后续尝试先查原退款号，区分本地任务失败和平台最后结果，人工重置与操作记录同事务；候选扫描跳过被锁行，修复前20条受阻导致第21条不能推进的问题。63项单测、14项退款核查、31项故障回归、11项后台检查、27项状态历史检查和8项大表检查通过，Vue构建成功。十万任务上核实锁定SQL的计划与实际返回；没有复跑持续负载或真实资金验收。原版JAR对照、失败夹具及本轮结果见[脱敏证据](docs/evidence/refund-review-2026-10-19.json)。
 
 ## 2 业务流程与规则
 
@@ -159,19 +161,20 @@ WHERE id = :sessionId
 
 示例：3份单价10.10元的菜品，餐盒费3元；自提订单33.30元，配送订单39.30元。明细保存每份10.10元及数量3，不能把单价和行小计混用。菜单之后改价不影响已生成订单。
 
-原11张业务表保留：employee、category、dish、dish_flavor、setmeal、setmeal_dish、user、address_book、shopping_cart、orders、order_detail。新增meal_session与refund_task，加Flyway历史表共14张。
+原11张业务表保留：employee、category、dish、dish_flavor、setmeal、setmeal_dish、user、address_book、shopping_cart、orders、order_detail。新增meal_session、refund_task与refund_review，加Flyway历史表共15张。
 
 | 关键表 | 新增或重要字段与约束 |
 | --- | --- |
 | meal_session | 日期、cutoff_time、pickup_start/end、capacity、reserved_count、status；容量CHECK；日期与营业查询索引 |
 | orders | request_key/hash、fulfillment_type、meal_session_id、reserved_quantity、pickup_code、delivery_fee、refund_status；请求键/订单号/核销码唯一；超时与餐次索引 |
 | order_detail | 商品名称、单价、数量等订单快照；分页时按一组order_id批量查明细 |
-| refund_task | order_id、refund_number、status、attempts/failures、provider_submitted、next_retry_time、lease_until/token、诊断与时间；订单和退款号各自唯一 |
+| refund_task | order_id、refund_number、status、attempts/failures、provider_submitted、provider_state/checked_time、next_retry_time、lease_until/token、诊断与时间；订单和退款号各自唯一 |
+| refund_review | task_id、operator_id、reason、previous_provider_state/failures及create_time；任务重置与人工恢复记录同事务 |
 | shopping_cart | user_id与id索引，显式维护number；与用户行锁配合协调修改和结算 |
 
 orders主键仍为数据库自增ID；对外订单号使用32位去连字符UUID并有唯一约束。UUID随机订单号不是聚簇主键，也不是雪花ID服务。fulfillmentType为1配送、2自提；配送需要地址，自提地址ID为空，使用联系信息与餐次。V3的CHECK限制履约字段组合。
 
-初始SQL见[scripts/sql/000-initial-schema.sql](scripts/sql/000-initial-schema.sql)。bootstrap仅在业务表为空时导入，Flyway为已有原表建立V1基线：V2增加餐次、订单字段、退款表；V3允许自提无配送地址并加履约约束；V4补用户范围索引。已经执行的迁移不能直接改内容，应添加新版本。
+初始SQL见[scripts/sql/000-initial-schema.sql](scripts/sql/000-initial-schema.sql)。bootstrap仅在业务表为空时导入，Flyway为已有原表建立V1基线：V2增加餐次、订单字段、退款表；V3允许自提无配送地址并加履约约束；V4补用户范围索引；V5补退款租约索引；V6增加平台最后结果和人工恢复记录。已经执行的迁移不能直接改内容，应添加新版本。
 
 ## 7 状态迁移与迟到支付
 
@@ -202,17 +205,19 @@ WHERE id = :id AND status = :expected AND pay_status = 1;
 ## 8 持久化退款与失败恢复
 
 1. **保存意图：**取消已支付订单时，订单变更与refund_task入库在同一事务；退款号固定为`R`加订单号，订单ID和退款号都有唯一约束。
-2. **领取任务：**默认每3秒取最多20个候选，交给每实例2个工作线程、16个排队位置的有界执行池；真正开始执行才条件更新为PROCESSING，分配2分钟租约与随机令牌。队列满不领取任务，后续扫描可恢复，只有领取成功的执行者调用平台。
-3. **外部调用：**放在数据库事务外，避免网络等待长期占有订单锁；重复尝试始终复用原退款号。
+2. **领取任务：**默认每3秒用READ COMMITTED短事务和SKIP LOCKED取候选，跳过其他事务锁住的任务；两分支各最多20条，合并最多20条。扫描提交后交给每实例2个工作线程、16个排队位置的有界执行池；真正执行才领取、分配2分钟租约与令牌。队列满不领取，后续扫描可恢复。
+3. **外部调用：**放在数据库事务外，避免网络等待长期占有订单锁；后续尝试先查询原退款号，只有明确NOT_FOUND才同号同金额重提。查询错误不能当作“平台未处理”。
 4. **确认结果：**平台明确成功后，短事务按订单→退款任务的顺序锁定/更新，并按当前任务令牌完成任务和订单退款状态。
-5. **继续处理：**平台返回PROCESSING时记录已提交，每30秒查询退款结果；异常按2、4、8、16、32秒退避，第6次失败进入FAILED；管理员可以重置失败任务后再试。
+5. **继续处理：**PROCESSING默认60秒后查询，持续处理时逐步降低查询频率；六次累计本地失败、超24小时仍PROCESSING、平台明确CLOSED/ABNORMAL时转FAILED待人工处理。人工重试必须填写原因，任务重置、订单状态与操作记录同事务；仍先查原号。
 6. **恢复崩溃：**PROCESSING租约过期后可重新领取；旧执行者的令牌不能覆盖新领取者的数据库结果。
 
-任务状态：`PENDING → PROCESSING → SUCCEEDED`；可重试失败回到PENDING，达到阈值进入FAILED，人工重试再回到PENDING。退款成功之前订单不能显示已退款。
+任务状态：`PENDING → PROCESSING → SUCCEEDED`；可重试失败回到PENDING，达到阈值进入FAILED，人工重试再回到PENDING。V6的provider_state另行保存平台最后结果，FAILED不等于平台未退款。退款成功确认之前订单不能显示已退款。
 
 若平台已处理但本地没拿到响应，稳定退款号和后续重试/查询用于恢复确认，不能换新退款号盲目重发。这是可恢复的最终一致性方案：**不保证外部接口仅调用一次，不是两阶段提交，也没有完整的支付账单对账。** 租约令牌约束本地写回，无法单独约束支付平台。
 
-当前异常诊断保存有界的异常类别，失败原因分类、监控告警和人工对账流程仍可完善。平台长期返回处理中时继续查询，尚无超长处理告警。真实资金一致性需要真实商户联调、通知和主动对账共同验证。[微信退款查询接口](https://pay.wechatpay.cn/doc/v3/merchant/4012791884)
+当前保存有界诊断和人工恢复记录，平台长期处理中会停止自动轮询并进入待人工处理；尚无生产告警和完整资金审计。真实资金一致性仍需要商户联调、通知和主动对账共同验证。[微信退款查询接口](https://pay.wechatpay.cn/doc/v3/merchant/4012791884)
+
+2026-10-19补充[退款核查与人工恢复](docs/REFUND_REVIEW.md)：默认后续尝试先查询原号，区分任务失败与平台最后结果，人工恢复留存原因及操作人；候选短事务跳过已被锁住的行，解决整批受阻时后续任务不能推进的问题。原锁定夹具曾因全索引扫描误锁正常行，修正为主键等值锁并独立验证后重新对照，失败记录保留。
 
 2026-10-15的[后台恢复迭代](docs/BACKGROUND_RECOVERY.md)修复了慢退款对调度线程的阻塞：扫描不等待外部接口，调度池显式设为2个线程；单项失败不终止超时批次或其他退款工作。进程内集合只防重复排队，任务的持久化与跨实例领取仍由MySQL负责。
 
@@ -319,7 +324,7 @@ python scripts/feature_checks.py --replay-only
 | 餐次订单与备餐汇总 | `GET /api/meal/sessions/{id}/orders`、`GET /api/meal/sessions/{id}/preparation` |
 | 接单/备餐就绪 | `PUT /api/order/confirm`，body包含id；`PUT /api/meal/orders/{id}/ready` |
 | 核销 | `POST /api/meal/redeem`，body包含pickupCode |
-| 退款任务/人工重试 | `GET /api/refunds`、`POST /api/refunds/{任务id}/retry` |
+| 退款任务/人工重试 | `GET /api/refunds`、`POST /api/refunds/{任务id}/retry`（JSON reason必填）、`GET /api/refunds/{任务id}/reviews` |
 
 自提请求示例，餐次ID替换为实际发布结果，购物车需先有商品：
 

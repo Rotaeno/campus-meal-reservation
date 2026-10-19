@@ -10,6 +10,8 @@ public class RefundTask {
     private String refundNumber;
     private String status;
     private Boolean providerSubmitted;
+    private String providerState;
+    private LocalDateTime providerCheckedTime;
     private Integer attempts;
     private Integer failures;
     private LocalDateTime nextRetryTime;

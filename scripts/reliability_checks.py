@@ -88,7 +88,7 @@ def refund_faults(lab):
     lab.run_refund(task, 'b')
     lab.check('timeout retry reuses refund number: repeated calls, one actual refund',
               lab.task(order)['status'] == 'SUCCEEDED' and lab.ledger(order)['actualRefunds'] == 1
-              and lab.ledger(order)['refundCalls'] == 2, lab.ledger(order))
+              and lab.ledger(order)['refundCalls'] == 1 and lab.ledger(order)['queryCalls'] == 1, lab.ledger(order))
 
     actor, meal, order, task = lab.refunded_order()
     gate = lab.arm('a', 'refund.beforeCommit', task['refund_number'])
@@ -107,7 +107,8 @@ def refund_faults(lab):
     lab.run_refund(task, 'b')
     lab.check('app and merchant restart recover committed external refund without double refund',
               lab.task(order)['status'] == 'SUCCEEDED' and lab.task(order)['attempts'] == 2
-              and lab.ledger(order)['actualRefunds'] == 1 and lab.ledger(order)['refundCalls'] == 2, lab.ledger(order))
+              and lab.ledger(order)['actualRefunds'] == 1 and lab.ledger(order)['refundCalls'] == 1
+              and lab.ledger(order)['queryCalls'] == 1, lab.ledger(order))
 
     actor, meal, order, task = lab.refunded_order()
     lab.fault(order, 4500, 'FAILED')  # Old worker arrives late with failure after a new owner succeeds.
@@ -122,10 +123,11 @@ def refund_faults(lab):
         old.result(timeout=20)
     final = lab.task(order)
     lab.check('late old lease token cannot overwrite new success with failure',
-              final == current and final['failures'] == 0 and lab.ledger(order)['refundCalls'] == 2
+              final == current and final['failures'] == 0 and lab.ledger(order)['refundCalls'] == 1
+              and lab.ledger(order)['queryCalls'] == 1
               and lab.ledger(order)['actualRefunds'] == 1,
               dict(lab.ledger(order), attempts=final['attempts'], failures=final['failures'], staleWriteRejected=True))
-    wait(lambda: lab.due(processing_order), timeout=35, description='provider query poll becomes due')
+    wait(lambda: lab.due(processing_order), timeout=65, description='provider query poll becomes due')
     lab.run_refund(processing_task, 'b')
     lab.check('submitted provider intent recovers by query without another refund POST',
               lab.task(processing_order)['status'] == 'SUCCEEDED'
@@ -507,8 +509,8 @@ def main():
             report['queryPlans'][name] = lab.sql('EXPLAIN ' + query, arguments)
         report['status'] = 'passed'
         versions = lab.sql('SELECT version,COUNT(*) count FROM flyway_schema_history WHERE success=1 GROUP BY version ORDER BY version')
-        lab.check('V2 through V5 applied once in isolated schema',
-                  all(any(row['version'] == version and row['count'] == 1 for row in versions) for version in ('2', '3', '4', '5')))
+        lab.check('V2 through V6 applied once in isolated schema',
+                  all(any(row['version'] == version and row['count'] == 1 for row in versions) for version in ('2', '3', '4', '5', '6')))
         print('Reliability checks complete. Report: ' + str(lab.directory / 'report.json'), flush=True)
     except Exception as error:
         report['status'] = 'failed'

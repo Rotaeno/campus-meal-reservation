@@ -1,0 +1,530 @@
+{
+  "date": "2026-10-19",
+  "status": "passed",
+  "baseCommit": "8b3b7bd47a602e8799b7529d8541412395ae1491",
+  "uncommittedChangesIncluded": true,
+  "jarSha256": "daf6893a009f083d14717fc97e3092bcca0d38a2b8b15da453c52c8e27b651e4",
+  "javaUnit": {
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontendBuild": {
+    "exitCode": 0
+  },
+  "correctedBaseline": {
+    "privateRun": "50e6f53816",
+    "jarSha256": "585559366b1bccbcd7b8cdef7261e203d07dc77b511d3bf1ee72994468c36984",
+    "checks": [
+      {
+        "check": "lock fixture leaves the twenty-first row independently lockable before scanning",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "baseline: a fully locked candidate page prevents later eligible work during observation",
+        "passed": true,
+        "evidence": {
+          "lockedTasks": 20,
+          "healthyStatus": "PENDING",
+          "observationSeconds": 6,
+          "samples": 15
+        }
+      },
+      {
+        "check": "after releasing real locks all twenty-one tasks settle with one actual refund each",
+        "passed": true,
+        "evidence": null
+      }
+    ]
+  },
+  "recovery": {
+    "privateRun": "fb57c20a72",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 20,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": true,
+      "businessClockZone": "Asia/Shanghai",
+      "refundScanMs": 200,
+      "pollSeconds": 1,
+      "reviewAgeVariantsSeconds": [
+        86400,
+        3
+      ],
+      "automaticLeaseSeconds": 20,
+      "manualDiagnosticLeaseSeconds": 2,
+      "leaseVariantsSeconds": [
+        2,
+        20
+      ],
+      "automaticPollSeconds": 1,
+      "manualDiagnosticPollSeconds": 60
+    },
+    "checks": [
+      {
+        "check": "lock fixture leaves the twenty-first row independently lockable before scanning",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "unlocked task beyond twenty locked candidates progresses without claiming locked tasks",
+        "passed": true,
+        "evidence": {
+          "lockedTasks": 20,
+          "healthyStatus": "SUCCEEDED",
+          "fixtureDiagnostic": {
+            "originalInPlan": [
+              {
+                "id": 1,
+                "select_type": "SIMPLE",
+                "table": "refund_task",
+                "partitions": null,
+                "type": "index",
+                "possible_keys": "PRIMARY",
+                "key": "uk_refund_order",
+                "key_len": "8",
+                "ref": null,
+                "rows": 21,
+                "filtered": 95.24,
+                "Extra": "Using where; Using index"
+              }
+            ],
+            "originalInAlsoLockedHealthy": true
+          },
+          "lockedAttempts": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "check": "after releasing real locks all twenty-one tasks settle with one actual refund each",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "provider rejected before refund ledger commit leaves zero actual refunds",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "explicit NOT_FOUND permits same-number submission after query, then one actual refund",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 2,
+          "queryCalls": 1,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "six actual unconfirmed outcomes stop automatically without declaring funds unpaid",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 5,
+          "actualRefunds": 1,
+          "actualPayments": 1,
+          "localState": "FAILED",
+          "providerState": "UNKNOWN",
+          "failures": 6
+        }
+      },
+      {
+        "check": "manual recovery requires admin authentication and a non-empty reason",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "review insert failure rolls back prior task reset and leaves no review row",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "two-instance manual recovery records one authenticated decision and preserves the original refund",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "reviewed recovery queries existing refund; no second refund POST after app and provider restart",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 6,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "prolonged PROCESSING stops with last provider result and review reason, not a funds-failure assertion",
+        "passed": true,
+        "evidence": {
+          "attempts": 4,
+          "failures": 0,
+          "providerState": "PROCESSING"
+        }
+      },
+      {
+        "check": "manual confirmation of aged processing preserves refund number and never resubmits",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "external CLOSED remains distinct from an unknown transport outcome",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "external ABNORMAL remains distinct from an unknown transport outcome",
+        "passed": true,
+        "evidence": null
+      }
+    ],
+    "lockedPage": {
+      "lockedTasks": 20,
+      "healthyStatus": "SUCCEEDED",
+      "fixtureDiagnostic": {
+        "originalInPlan": [
+          {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "refund_task",
+            "partitions": null,
+            "type": "index",
+            "possible_keys": "PRIMARY",
+            "key": "uk_refund_order",
+            "key_len": "8",
+            "ref": null,
+            "rows": 21,
+            "filtered": 95.24,
+            "Extra": "Using where; Using index"
+          }
+        ],
+        "originalInAlsoLockedHealthy": true
+      },
+      "lockedAttempts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "notProcessed": {
+      "refundCalls": 2,
+      "queryCalls": 1,
+      "actualRefunds": 1,
+      "actualPayments": 1
+    },
+    "manualReview": {
+      "refundCalls": 1,
+      "queryCalls": 6,
+      "actualRefunds": 1,
+      "actualPayments": 1,
+      "failuresBeforeReview": 6,
+      "reviews": 1,
+      "realBackoff": true
+    }
+  },
+  "regressions": {
+    "reliability": {
+      "privateRun": "5207200e73",
+      "passed": 31
+    },
+    "background": {
+      "privateRun": "25baf0205e",
+      "passed": 11,
+      "automaticCrash": {
+        "refundCalls": 1,
+        "queryCalls": 1,
+        "actualRefunds": 1,
+        "actualPayments": 1,
+        "attempts": 2,
+        "recoveryIncludingStartupMs": 9496.02
+      }
+    },
+    "stateHistory": {
+      "privateRun": "986a6a9509",
+      "passed": 27,
+      "histories": 24,
+      "operations": 126,
+      "committedAuditChanges": 110,
+      "committedSnapshotSamples": 389
+    }
+  },
+  "scale": {
+    "privateRun": "9dec106f2c",
+    "fixture": {
+      "syntheticRefundTasks": 100000,
+      "syntheticOrders": 105000,
+      "refundDistribution": {
+        "SUCCEEDED": 90000,
+        "FAILED": 5000,
+        "PENDING_FUTURE": 3000,
+        "PENDING_DUE": 500,
+        "PROCESSING_EXPIRED": 500,
+        "PROCESSING_FUTURE": 1000
+      },
+      "pendingUnpaidOrders": 5000,
+      "onlyCutoffInitiallyDue": 500,
+      "fixturesNeverSentToProvider": true
+    },
+    "checks": [
+      {
+        "check": "large production pendingCandidates uses a real transaction and returns twenty unique tasks",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "large production expiredLeaseCandidates uses a real transaction and returns twenty unique tasks",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "large active queue skips twenty real locked candidates and returns the next eligible batch",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "large refund candidate query returns bounded eligible unique tasks",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutCurrentCutoffOnly returns only expired unpaid fixture orders",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutSplitCutoffOnly returns only expired unpaid fixture orders",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutCurrentMixed has a full batch without duplicates",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutSplitMixed has a full batch without duplicates",
+        "passed": true,
+        "evidence": null
+      }
+    ],
+    "candidateQueries": {
+      "pendingCandidates": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 1.17,
+        "p95Ms": 1.92,
+        "returnedRows": 20,
+        "isolation": "READ COMMITTED",
+        "realTransaction": true,
+        "newTransactionPerSample": true,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 1.0,
+          "Handler_read_next": 19.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explainAnalyze": "-> Limit: 20 row(s)  (cost=102 rows=20) (actual time=0.0346..0.0423 rows=20 loops=1)\n    -> Filter: ((refund_task.`status` = 'PENDING') and (refund_task.next_retry_time <= TIMESTAMP'2026-10-20 00:00:34.69731'))  (cost=102 rows=500) (actual time=0.0341..0.0412 rows=20 loops=1)\n        -> Covering index range scan on refund_task using idx_refund_retry over (status = 'PENDING' AND next_retry_time < '2026-10-20 00:00:35')  (cost=102 rows=500) (actual time=0.0319..0.035 rows=20 loops=1)\n"
+      },
+      "expiredLeaseCandidates": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 0.71,
+        "p95Ms": 0.92,
+        "returnedRows": 20,
+        "isolation": "READ COMMITTED",
+        "realTransaction": true,
+        "newTransactionPerSample": true,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 1.0,
+          "Handler_read_next": 19.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explainAnalyze": "-> Limit: 20 row(s)  (cost=101 rows=20) (actual time=0.0307..0.0377 rows=20 loops=1)\n    -> Filter: ((refund_task.`status` = 'PROCESSING') and (refund_task.lease_until < TIMESTAMP'2026-10-20 00:00:34.69731'))  (cost=101 rows=500) (actual time=0.0299..0.0367 rows=20 loops=1)\n        -> Covering index range scan on refund_task using idx_refund_lease over (status = 'PROCESSING' AND NULL < lease_until < '2026-10-20 00:00:35')  (cost=101 rows=500) (actual time=0.0281..0.0313 rows=20 loops=1)\n"
+      },
+      "pendingCandidatesLockedPrefix": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 0.81,
+        "p95Ms": 1.58,
+        "returnedRows": 20,
+        "isolation": "READ COMMITTED",
+        "realTransaction": true,
+        "newTransactionPerSample": true,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 1.0,
+          "Handler_read_next": 19.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explainAnalyze": "-> Limit: 20 row(s)  (cost=102 rows=20) (actual time=0.0466..0.0542 rows=20 loops=1)\n    -> Filter: ((refund_task.`status` = 'PENDING') and (refund_task.next_retry_time <= TIMESTAMP'2026-10-20 00:00:34.69731'))  (cost=102 rows=500) (actual time=0.0459..0.0527 rows=20 loops=1)\n        -> Covering index range scan on refund_task using idx_refund_retry over (status = 'PENDING' AND next_retry_time < '2026-10-20 00:00:35')  (cost=102 rows=500) (actual time=0.0436..0.0468 rows=20 loops=1)\n"
+      }
+    },
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 2,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": false,
+      "businessClockZone": "Asia/Shanghai"
+    }
+  },
+  "retainedFixtureFailure": {
+    "privateRun": "4a6ceb8f31",
+    "classification": "test lock fixture",
+    "reason": "IN(20 ids) selected a full covering-index scan under RR and also locked the healthy 21st row",
+    "correctedBy": "exact primary-key locks plus independent FOR UPDATE NOWAIT verification",
+    "reproducedBy": {
+      "originalInPlan": [
+        {
+          "id": 1,
+          "select_type": "SIMPLE",
+          "table": "refund_task",
+          "partitions": null,
+          "type": "index",
+          "possible_keys": "PRIMARY",
+          "key": "uk_refund_order",
+          "key_len": "8",
+          "ref": null,
+          "rows": 21,
+          "filtered": 95.24,
+          "Extra": "Using where; Using index"
+        }
+      ],
+      "originalInAlsoLockedHealthy": true
+    }
+  },
+  "retainedOrchestrationFailure": {
+    "privateRun": "d4159708f9",
+    "classification": "state-test orchestration condition",
+    "failedCase": "aged / seed 20261021",
+    "condition": "all requests waiting within 0.8s with DB lock wait 1s",
+    "rootCause": "specific delayed request not established by original capture",
+    "changes": "3s orchestration / 5s DB wait; retain per-poll observations and legitimate early CAS rejections",
+    "businessModelChanged": false,
+    "silentRetry": false
+  },
+  "limitations": [
+    "Provider state is the last locally recorded observation, not a cross-system atomic balance.",
+    "A stable refund number remains necessary; queries and submissions may repeat.",
+    "CLOSED/ABNORMAL require platform-specific operator action; no automatic new refund number.",
+    "SKIP LOCKED excludes row locks only, not metadata locks, DB outages or arbitrary starvation.",
+    "Review tests use 1-second polling and a 3-second age variant; defaults are 60 seconds and 24 hours.",
+    "No real funds, real merchant reconciliation, cross-machine fault or database failover acceptance.",
+    "Vue build passed; browser click-through not executed.",
+    "No new sustained-load or cold-cache test; historical TCP timeout remains unresolved.",
+    "Normal business database was not migrated or used; normal smoke/feature flows and full bootstrap were not rerun. Their V6 compatibility edits received static checks only."
+  ],
+  "completedAt": "2026-10-20T00:00:58.184017+08:00",
+  "runFinishedAt": {
+    "recovery": "2026-10-19T23:39:57.010061+08:00",
+    "reliability": "2026-10-19T23:44:17.049209+08:00",
+    "background": "2026-10-19T23:47:00.938843+08:00",
+    "stateHistory": "2026-10-19T23:58:13.764789+08:00",
+    "scale": "2026-10-20T00:00:58.184017+08:00"
+  },
+  "sourcesSha256": {
+    "scripts/refund_recovery_checks.py": "4a3ad1f7d2c9c4fd51c76ec0469ee05de990cc971ddc68eb283471ec51466c92",
+    "scripts/mock_provider.py": "3e78c3f53a3cc9492050a7addc0b01173c180be572c224cb6fcfe959ea317c72",
+    "scripts/scale_checks.py": "315ac8f2663cdf4fe870fa25152b14d59f8810886b585cfdf4b7f4cdfac57731",
+    "scripts/state_history_checks.py": "fa473e415a335379f4ef67b4dab7ae5321efe7dbb3d88c4cd378ca7fbad5c588",
+    "scripts/reliability_lab.py": "c4d8722c95a8f8689c02dec7a83f5168a7662f08033ad1b1dbab443b690dbb24",
+    "scripts/bootstrap.ps1": "8f10b3f57ab6c7be781efd6cc8fbe77df7ac9a2d43b1a656c1b5fcde64058ec9",
+    "scripts/smoke.py": "cd9829f344c9159279bd2308999692798a5be217dc38a3bb7c6296fbda45af28",
+    "scripts/feature_checks.py": "16c74e8f6a70d9ca660393ee58822858ee9a37d96aac3c52b3b127af74b5ee20",
+    "scripts/reliability_checks.py": "3baf7f80af96559fe74ecdd3f2f7ec80d2031f02b319443adfb72884f52d4997",
+    "scripts/background_checks.py": "843ce1550ed65997ebce91edce228e99b411354d52d0d85b9e95750ce1010b3c",
+    "sky-take-out/sky-common/src/main/java/com/sky/utils/WeChatPayUtil.java": "710ab6bcd81f501064a1ee1a5ef4df45a6c942ee2172036f2820238eb30430b5",
+    "sky-take-out/sky-server/src/main/java/com/sky/config/LocalDemoConfiguration.java": "803257a7c9cd594a7d289277d52bf3ff546a5e159391a9176124b86ab5e4a8af",
+    "sky-take-out/sky-server/src/main/java/com/sky/controller/admin/RefundController.java": "23d1c342c95071bad804eae84acc5ce7a38c4e66f2241081aac9bf916534e667",
+    "sky-take-out/sky-pojo/src/main/java/com/sky/entity/RefundTask.java": "3a0a9d1fc52f491c5be583994aa23c3be96976c0d207c47a57351a4eb2f52405",
+    "sky-take-out/sky-pojo/src/main/java/com/sky/entity/RefundReview.java": "68fb67a345656a44a66d4cad223f6eb0d18c65b3a3c3b8b3897d3eda0eaa7bc4",
+    "sky-take-out/sky-pojo/src/main/java/com/sky/dto/RefundRetryDTO.java": "9dc8eb171b6e1c59c6faf1d6d26d0c387724dd5e0fe8442ab859de65c378c413",
+    "sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java": "92b98f804924c79f5b2e1ee37aa7f0bcc25b29d77110be3716b84e50358ae716",
+    "sky-take-out/sky-server/src/main/java/com/sky/service/RefundPolicy.java": "99d226798e2f3515c8b3e0c55924c8118239464a314b4578482e0d00f041cdf7",
+    "sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java": "dd20c40ede5a8f4b4efa44751db4f68517251f72c19e7f5fad089c67d7b51f78",
+    "sky-take-out/sky-server/src/test/java/com/sky/service/RefundPolicyTest.java": "619791732ddee2a679dfda5d09da2983a08c25eeb42747d8d71756dc8bad8355",
+    "sky-take-out/sky-server/src/main/resources/db/migration/V6__refund_review_and_provider_state.sql": "254c2f811783ebd443ae3bea8f78375e8a548ade77300e3e3b50b7f748248b93",
+    "project-rjwm-admin-vue-ts/src/views/meal/Management.vue": "c3fcc82fa81f7fb2cb52719f09151800ccab1211c3f8799b4fe2c88b735467bf"
+  },
+  "sourceByteConvention": "sourcesSha256 hashes pre-commit working-tree bytes; Git may normalize CRLF. gitBlobIds hashes Git-cleaned content for comparison with public commit blobs.",
+  "gitBlobIds": {
+    "scripts/refund_recovery_checks.py": "245fff9eb86ad6920076c3a90aefb755e9d2a318",
+    "scripts/mock_provider.py": "3cc91c44e3769d56b4a62e25bcec45f44a55ac41",
+    "scripts/scale_checks.py": "21cff3a0cbb1d21b2c0860f01fe4fc08abd7c983",
+    "scripts/state_history_checks.py": "f10c1d522c4e088dab37b9265bfe46fa0db78017",
+    "scripts/reliability_lab.py": "95c8f2d636e836847aa8d115495e317384b2dd80",
+    "scripts/bootstrap.ps1": "dffccf91fc2f75129bd054370cb4c098dd0105eb",
+    "scripts/smoke.py": "13991f3d103244abcdffde111cadb9ef6312c50f",
+    "scripts/feature_checks.py": "0984e595a4d355410756822ed0ac4bef46e41469",
+    "scripts/reliability_checks.py": "43b514f86203c9cf0bb9d1dfb35c84efe94b2b57",
+    "scripts/background_checks.py": "58af0218f7b279543a5e8a16bff6582b2179be74",
+    "sky-take-out/sky-common/src/main/java/com/sky/utils/WeChatPayUtil.java": "104e43b28e5cff7ef7363918e1354b7c625cb09a",
+    "sky-take-out/sky-server/src/main/java/com/sky/config/LocalDemoConfiguration.java": "14f751d9ae2152a6945d5940931d8fa1b82b2485",
+    "sky-take-out/sky-server/src/main/java/com/sky/controller/admin/RefundController.java": "1362ff21bca21b58809b1a77a6d4e5957b41b862",
+    "sky-take-out/sky-pojo/src/main/java/com/sky/entity/RefundTask.java": "b085de939f2e73ffc679560f6d3cc7dbe16a5db9",
+    "sky-take-out/sky-pojo/src/main/java/com/sky/entity/RefundReview.java": "66b92a4a501ed6ef9cb23bf3336cb8b402a151dc",
+    "sky-take-out/sky-pojo/src/main/java/com/sky/dto/RefundRetryDTO.java": "516759ba085bb236ad9843964ff02d1095416361",
+    "sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java": "25e1f29547e3d487a27a1e47d7746bffaeab01df",
+    "sky-take-out/sky-server/src/main/java/com/sky/service/RefundPolicy.java": "1afed7d875abfcbb365b00d670ad840ad8936e16",
+    "sky-take-out/sky-server/src/main/java/com/sky/mapper/RefundTaskMapper.java": "ce95359816aebcd3bcc612fae0e6aa30821d5a7e",
+    "sky-take-out/sky-server/src/test/java/com/sky/service/RefundPolicyTest.java": "9ef840858b1cc200c3dd8bacdd12e50b71330edd",
+    "sky-take-out/sky-server/src/main/resources/db/migration/V6__refund_review_and_provider_state.sql": "fb02ad9e08c71f97acc9ee2cbd2506df62f40eb7",
+    "project-rjwm-admin-vue-ts/src/views/meal/Management.vue": "c14648b34886d192372e0f4327a92e4d914ab2af"
+  }
+}

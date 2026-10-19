@@ -73,7 +73,7 @@ if ([int]$taskTableCount -eq 0) {
     $taskSchema = Join-Path $PSScriptRoot 'sql\000-initial-schema.sql'
     & "$script:MysqlHome\bin\mysql.exe" "--defaults-extra-file=$script:RuntimeRoot\mysql-client.cnf" --execute="source $($taskSchema.Replace('\','/'))"
     if ($LASTEXITCODE -ne 0) { throw 'Schema import failed.' }
-} elseif ([int]$taskTableCount -notin @(11,14)) { throw 'Expected 11 baseline tables or 14 tables after Flyway migration. Existing data was preserved.' }
+} elseif ([int]$taskTableCount -notin @(11,14,15)) { throw 'Expected 11 baseline tables, 14 pre-V6 tables or 15 tables after V6. Existing data was preserved.' }
 $taskMigration = Join-Path $PSScriptRoot 'sql\001-demo-admin-password.sql'
 & "$script:MysqlHome\bin\mysql.exe" "--defaults-extra-file=$script:RuntimeRoot\mysql-client.cnf" --database=sky_take_out --execute="source $($taskMigration.Replace('\','/'))"
 if ($LASTEXITCODE -ne 0) { throw 'Demo seed migration failed.' }

@@ -13,7 +13,7 @@ from reliability_lab import Lab, wait
 
 def scheduled_options():
     return ['--sky.refund.scan-enabled=true', '--sky.refund.interval-ms=200',
-            '--sky.order.timeout-scan-ms=200', '--sky.refund.lease-seconds=20']
+            '--sky.order.timeout-scan-ms=200', '--sky.refund.poll-seconds=30', '--sky.refund.lease-seconds=20']
 
 
 def prepare(lab):
@@ -103,7 +103,7 @@ def automatic_crash(lab):
                     recoveryIncludingStartupMs=round((time.perf_counter() - started) * 1000, 2))
     lab.check('restart and actual lease expiry recover without manual refund endpoint',
               after['lease_token'] != before['lease_token'] and after['attempts'] == 2
-              and evidence['refundCalls'] == 2 and evidence['actualRefunds'] == 1, evidence)
+              and evidence['refundCalls'] == evidence['queryCalls'] == 1 and evidence['actualRefunds'] == 1, evidence)
     lab.start_app('a')
     lab.invariants()
     return evidence
@@ -124,15 +124,13 @@ def claim_failure_isolation(lab):
         lab.restart_app('a')
         wait(lambda: lab.task(jobs[1][2])['status'] == 'SUCCEEDED', timeout=8,
              description='healthy task proceeds while another claim is locked')
-        wait(lambda: lab.metrics('a')['refundExecutor']['failures'] > 0, timeout=10,
-             description='bounded claim retries exhaust in one worker')
         snapshot = lab.metrics('a')
-        lab.check('a real locked refund claim cannot abort healthy background work',
-                  lab.task(jobs[0][2])['status'] == 'PENDING' and snapshot['dbRetryExhausted'] > 0,
+        lab.check('candidate scan skips a real locked task while healthy background work proceeds',
+                  lab.task(jobs[0][2])['status'] == 'PENDING' and lab.task(jobs[0][2])['attempts'] == 0,
                   {'dbRetries': snapshot['dbRetries'], 'workerFailures': snapshot['refundExecutor']['failures']})
         blocker.rollback()
     wait(lambda: lab.task(jobs[0][2])['status'] == 'SUCCEEDED', timeout=10, description='later scan recovers released claim')
-    lab.check('failed claim is retried by a later automatic scan', lab.ledger(jobs[0][2])['actualRefunds'] == 1)
+    lab.check('released candidate is recovered by a later automatic scan', lab.ledger(jobs[0][2])['actualRefunds'] == 1)
 
 
 def natural_expiry(lab):
@@ -204,6 +202,7 @@ def main():
         report['environment'] = dict(lab.environment_info(), refundAutoScan=True,
                                       leaseSeconds=20, timeoutScanMs=200, refundScanMs=200, initialScheduledInstances=1,
                                       initialLeaseSeconds=20, leaseVariantsSeconds=[20, 2],
+                                      providerPollSeconds=30,
                                       workerVariants=[2, 1], queueCapacityVariants=[16, 1])
         report['interference'] = interference(lab, args.baseline)
         if not args.baseline:

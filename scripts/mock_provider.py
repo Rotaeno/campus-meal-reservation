@@ -24,6 +24,8 @@ def initialize(path):
           CREATE TABLE IF NOT EXISTS refunds(refund_number TEXT PRIMARY KEY, number TEXT NOT NULL, cents INTEGER NOT NULL);
           CREATE TABLE IF NOT EXISTS calls(id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT, number TEXT, refund_number TEXT, created REAL);
           CREATE TABLE IF NOT EXISTS faults(refund_number TEXT PRIMARY KEY, delay_ms INTEGER, response TEXT, remaining INTEGER);
+          CREATE TABLE IF NOT EXISTS fault_plan(refund_number TEXT,kind TEXT,delay_ms INTEGER,response TEXT,
+            remaining INTEGER,record_refund INTEGER,http_status INTEGER,PRIMARY KEY(refund_number,kind));
         ''')
 
 
@@ -61,7 +63,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(404, {})
 
     def do_POST(self):
-        delay, response = 0, 'SUCCESS'
+        delay, response, http_status = 0, 'SUCCESS', 200
         try:
             length = int(self.headers.get('Content-Length', '0'))
             if not 0 < length <= 4096:
@@ -72,11 +74,15 @@ class Handler(BaseHTTPRequestHandler):
                 if self.path == '/fault':
                     delay = int(value.get('delayMs', 0))
                     response = value.get('response', 'SUCCESS')
-                    if not 0 <= delay <= 30000 or response not in ('SUCCESS', 'FAILED', 'PROCESSING'):
+                    kind, count = value.get('kind', 'refund'), int(value.get('repeat', 1))
+                    http_status = int(value.get('httpStatus', 200))
+                    record = bool(value.get('recordRefund', True))
+                    if (not 0 <= delay <= 30000 or response not in ('SUCCESS', 'FAILED', 'PROCESSING', 'CLOSED', 'ABNORMAL', 'NOT_FOUND', 'INVALID_JSON')
+                            or kind not in ('refund', 'query') or not 1 <= count <= 20 or http_status not in (200, 503)):
                         raise ValueError('invalid fault')
-                    db.execute('INSERT OR REPLACE INTO faults VALUES(?,?,?,?)',
-                               (value['refundNumber'], delay, response, 1))
-                    delay = 0
+                    db.execute('INSERT OR REPLACE INTO fault_plan VALUES(?,?,?,?,?,?,?)',
+                               (value['refundNumber'], kind, delay, response, count, int(record), http_status))
+                    delay, response, http_status = 0, 'SUCCESS', 200
                 elif self.path == '/pay':
                     number, total = value['number'], cents(value['total'])
                     old = db.execute('SELECT cents FROM payments WHERE number=?', (number,)).fetchone()
@@ -95,23 +101,28 @@ class Handler(BaseHTTPRequestHandler):
                         raise ValueError('refund number conflict')
                     if not old and db.execute('SELECT 1 FROM refunds WHERE number=?', (number,)).fetchone():
                         raise ValueError('over-refund')
-                    db.execute('INSERT OR IGNORE INTO refunds VALUES(?,?,?)', (key, number, refund))
+                    fault = db.execute("SELECT * FROM fault_plan WHERE refund_number=? AND kind='refund' AND remaining>0", (key,)).fetchone()
+                    if not fault or fault['record_refund']:
+                        db.execute('INSERT OR IGNORE INTO refunds VALUES(?,?,?)', (key, number, refund))
                     db.execute('INSERT INTO calls(kind,number,refund_number,created) VALUES(?,?,?,?)',
                                ('refund', number, key, time.time()))
-                    fault = db.execute('SELECT * FROM faults WHERE refund_number=? AND remaining>0', (key,)).fetchone()
                     if fault:
-                        delay, response = fault['delay_ms'], fault['response']
-                        db.execute('UPDATE faults SET remaining=0 WHERE refund_number=?', (key,))
+                        delay, response, http_status = fault['delay_ms'], fault['response'], fault['http_status']
+                        db.execute("UPDATE fault_plan SET remaining=remaining-1 WHERE refund_number=? AND kind='refund'", (key,))
                 elif self.path == '/query':
                     key = value['refundNumber']
                     response = 'SUCCESS' if db.execute('SELECT 1 FROM refunds WHERE refund_number=?', (key,)).fetchone() else 'NOT_FOUND'
                     db.execute('INSERT INTO calls(kind,refund_number,created) VALUES(?,?,?)', ('query', key, time.time()))
+                    fault = db.execute("SELECT * FROM fault_plan WHERE refund_number=? AND kind='query' AND remaining>0", (key,)).fetchone()
+                    if fault:
+                        delay, response, http_status = fault['delay_ms'], fault['response'], fault['http_status']
+                        db.execute("UPDATE fault_plan SET remaining=remaining-1 WHERE refund_number=? AND kind='query'", (key,))
                 else:
                     self.reply(404, {})
                     return
             # Transaction has COMMITTED. Delayed/failed HTTP confirmation changes no ledger row.
             time.sleep(delay / 1000)
-            self.reply(200, {'status': response, 'simulation': True})
+            self.reply(http_status, 'malformed-provider-body' if response == 'INVALID_JSON' else {'status': response, 'simulation': True})
         except (ValueError, KeyError, InvalidOperation, json.JSONDecodeError) as error:
             self.reply(409, {'error': type(error).__name__, 'simulation': True})
         except sqlite3.Error:

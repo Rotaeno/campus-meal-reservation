@@ -352,7 +352,7 @@ def main():
     check('six refund failures become visible FAILED intent', s.sql(f'SELECT status,failures FROM refund_task WHERE order_id={failed_order["id"]}') == 'FAILED\t6'
           and s.sql(f'SELECT refund_status,pay_status FROM orders WHERE id={failed_order["id"]}') == 'FAILED\t1')
     task_id = int(s.sql(f'SELECT id FROM refund_task WHERE order_id={failed_order["id"]}'))
-    call('POST', '/api/refunds/' + str(task_id) + '/retry', auth=ADMIN)
+    call('POST', '/api/refunds/' + str(task_id) + '/retry', {'reason': '隔离测试：核实后重试原退款'}, auth=ADMIN)
     wait_refund(failed_order['id'])
     check('admin can retry failed refund without creating another task',
           s.sql(f'SELECT COUNT(*) FROM refund_task WHERE order_id={failed_order["id"]}') == '1'
@@ -368,7 +368,7 @@ def main():
     call('POST', '/api/meal/redeem', {'pickupCode': 'unknown-code'}, ADMIN, expected=0)
     check('invalid pickup code refused')
     check('database reservation invariants hold for every session', s.sql('SELECT COUNT(*) FROM meal_session WHERE reserved_count<0 OR reserved_count>capacity') == '0')
-    check('Flyway migrations V2-V4 each recorded once', s.sql("SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('2','3','4') AND success=1") == '3')
+    check('Flyway migrations V2-V6 each recorded once', s.sql("SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('2','3','4','5','6') AND success=1") == '5')
     return {'user_code': u1['code'], 'request': request, 'order': order,
             'order_count_at_save': int(s.sql('SELECT COUNT(*) FROM orders'))}
 
@@ -382,7 +382,7 @@ def replay():
           and replayed['orderNumber'] == saved['order']['orderNumber']
           and s.sql(f"SELECT COUNT(*) FROM orders WHERE user_id={user['id']} AND request_key='{saved['request']['requestKey']}'") == '1')
     check('restart and repeat bootstrap preserve existing business rows', int(s.sql('SELECT COUNT(*) FROM orders')) >= saved['order_count_at_save'])
-    check('repeat startup preserves three successful schema migrations', s.sql("SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('2','3','4') AND success=1") == '3')
+    check('repeat startup preserves five successful schema migrations', s.sql("SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('2','3','4','5','6') AND success=1") == '5')
     report['checks'].extend(CHECKS)
     report['restart_verified'] = True
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')

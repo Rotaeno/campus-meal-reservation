@@ -84,6 +84,7 @@ class Lab:
             self.ports[name] = candidate
         self.provider = 'http://127.0.0.1:' + str(self.ports['provider'])
         self.pool = 10
+        self.lock_wait_seconds = 1
         self.app_overrides = {}
         self.jar = ROOT / 'sky-take-out/sky-server/target/sky-server-1.0-SNAPSHOT.jar'
         self.serial = 0
@@ -190,7 +191,7 @@ class Lab:
                 '--spring.datasource.druid.max-active=' + str(self.pool), '--spring.datasource.druid.max-wait=3000',
                 '--spring.datasource.druid.url=jdbc:mysql://127.0.0.1:3306/' + self.schema
                 + '?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false'
-                + '&allowPublicKeyRetrieval=true&sessionVariables=innodb_lock_wait_timeout=1',
+                + '&allowPublicKeyRetrieval=true&sessionVariables=innodb_lock_wait_timeout=' + str(self.lock_wait_seconds),
                 '--debug=false', '--logging.level.root=warn', '--logging.level.com.sky=warn',
                 '--logging.level.com.sky.mapper=warn', '--logging.level.com.sky.service=warn',
                 '--logging.level.com.sky.controller=warn', '--logging.level.org.springframework=warn']
@@ -210,7 +211,7 @@ class Lab:
         result = self.call(name, 'POST', '/admin/employee/login', {'username': 'admin', 'password': '123456'})
         self.admin[name] = {'token': result['data']['token']}
         config = self.call(name, 'GET', '/admin/local/reliability/configuration', admin=True)['data']
-        assert config['databaseName'] == self.schema and int(config['lockWaitSeconds']) == 1, config
+        assert config['databaseName'] == self.schema and int(config['lockWaitSeconds']) == self.lock_wait_seconds, config
 
     def restart_app(self, name):
         self.stop(self.apps[name])
@@ -323,9 +324,9 @@ class Lab:
                 'actualRefunds': sum(row['refund_number'] == key for row in data['refunds']),
                 'actualPayments': sum(row['number'] == order['orderNumber'] for row in data['payments'])}
 
-    def fault(self, order, delay_ms, response='SUCCESS'):
+    def fault(self, order, delay_ms, response='SUCCESS', **options):
         result = requests.post(self.provider + '/fault', json={'refundNumber': 'R' + order['orderNumber'],
-                               'delayMs': delay_ms, 'response': response}, timeout=5)
+                               'delayMs': delay_ms, 'response': response, **options}, timeout=5)
         assert result.status_code == 200
 
     def arm(self, name, stage, key):
@@ -375,7 +376,7 @@ class Lab:
                 'mysql': self.sql('SELECT VERSION() version', root=True)[0]['version'],
                 'java': 'Corretto 8u504', 'springBoot': '2.7.3', 'redis': '7.4.3',
                 'instances': 2, 'merchant': 'independent process / SQLite WAL', 'database': 'unique test schema',
-                'leaseSeconds': 2, 'providerReadTimeoutMs': 6000, 'dbLockWaitTimeoutSeconds': 1,
+                'leaseSeconds': 2, 'providerReadTimeoutMs': 6000, 'dbLockWaitTimeoutSeconds': self.lock_wait_seconds,
                 'refundAutoScan': False, 'businessClockZone': 'Asia/Shanghai'}
 
     def close(self):
