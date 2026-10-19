@@ -7,6 +7,7 @@ import com.sky.mapper.OrderMapper;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.reliability.LocalProviderClient;
+import com.sky.reliability.ReliabilityProbe;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +23,14 @@ public class LocalPaymentController {
     private final OrderMapper orderMapper;
     private final OrderService orderService;
     private final ObjectProvider<LocalProviderClient> provider;
+    private final ReliabilityProbe reliability;
 
-    public LocalPaymentController(OrderMapper orderMapper, OrderService orderService, ObjectProvider<LocalProviderClient> provider) {
+    public LocalPaymentController(OrderMapper orderMapper, OrderService orderService, ObjectProvider<LocalProviderClient> provider,
+                                  ReliabilityProbe reliability) {
         this.orderMapper = orderMapper;
         this.orderService = orderService;
         this.provider = provider;
+        this.reliability = reliability;
     }
 
     @PostMapping("/orders/{number}/pay")
@@ -52,6 +56,9 @@ public class LocalPaymentController {
     }
     private void recordPayment(String number,java.math.BigDecimal amount) {
         LocalProviderClient ledger=provider.getIfAvailable();
-        if(ledger!=null) { ledger.paid(number,amount); }
+        if(ledger!=null) {
+            ledger.paid(number,amount);
+            reliability.hit("payment.providerRecorded",number);
+        }
     }
 }

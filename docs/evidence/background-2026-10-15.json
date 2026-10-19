@@ -1,0 +1,1144 @@
+{
+  "date": "2026-10-15",
+  "status": "passed",
+  "discoveryRunRetained": true,
+  "baseCommit": "d1cba0d2b24f10979f1e53a2dd3ba5b287fe88ff",
+  "jarSha256": "841c8507c3e9508313eb6e1b2b8ab992a2ebb9599d73826f6d06de40b2b8434b",
+  "unitTests": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "background": {
+    "date": "2026-10-15T02:04:17.677159+08:00",
+    "finishedAt": "2026-10-15T02:08:24.375452+08:00",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": true,
+      "businessClockZone": "Asia/Shanghai",
+      "timeoutScanMs": 200,
+      "refundScanMs": 200,
+      "initialScheduledInstances": 1,
+      "initialLeaseSeconds": 20,
+      "leaseVariantsSeconds": [
+        20,
+        2
+      ],
+      "workerVariants": [
+        2,
+        1
+      ],
+      "queueCapacityVariants": [
+        16,
+        1
+      ]
+    },
+    "checks": [
+      {
+        "check": "scheduled slow refund interference after fix",
+        "passed": true,
+        "evidence": {
+          "unpaidCancelledMs": 798.67,
+          "quickRefundMs": 1580.15
+        }
+      },
+      {
+        "check": "automatic expiry releases capacity; independent ledgers agree",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "full queue leaves tasks unclaimed and does not run on scheduler",
+        "passed": true,
+        "evidence": {
+          "workers": 1,
+          "active": 1,
+          "queued": 1,
+          "admitted": 2,
+          "completed": 0,
+          "rejected": 4,
+          "failures": 0
+        }
+      },
+      {
+        "check": "all six refunds drain after queue saturation with one ledger refund each",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "a real locked refund claim cannot abort healthy background work",
+        "passed": true,
+        "evidence": {
+          "dbRetries": 2,
+          "workerFailures": 1
+        }
+      },
+      {
+        "check": "failed claim is retried by a later automatic scan",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "automatic worker has external commit but local confirmation is uncommitted",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "restart and actual lease expiry recover without manual refund endpoint",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 2,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1,
+          "attempts": 2,
+          "recoveryIncludingStartupMs": 15493.88
+        }
+      },
+      {
+        "check": "natural cutoff expires fresh order and releases capacity without SQL time edits",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "automatic PROCESSING recovery queries instead of another refund POST",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 1,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "two automatic instances drain real refund backlog with one ledger refund per order",
+        "passed": true,
+        "evidence": {
+          "orders": 40,
+          "drainIncludingCancellationMs": 32104.04
+        }
+      }
+    ],
+    "interference": {
+      "unpaidCancelledMs": 798.67,
+      "quickRefundMs": 1580.15
+    },
+    "saturation": {
+      "workers": 1,
+      "active": 1,
+      "queued": 1,
+      "admitted": 2,
+      "completed": 0,
+      "rejected": 4,
+      "failures": 0
+    },
+    "automaticCrash": {
+      "refundCalls": 2,
+      "queryCalls": 0,
+      "actualRefunds": 1,
+      "actualPayments": 1,
+      "attempts": 2,
+      "recoveryIncludingStartupMs": 15493.88
+    },
+    "backlog": {
+      "orders": 40,
+      "drainIncludingCancellationMs": 32104.04
+    }
+  },
+  "beforeFix": {
+    "date": "2026-10-15T01:10:10.450291+08:00",
+    "finishedAt": "2026-10-15T01:11:10.211068+08:00",
+    "jarSha256": "1e5dbd1e3fd6873d891f886120793a9ee0290223197bfe890df0fe883d9230e8",
+    "interference": {
+      "unpaidCancelledMs": 4221.79,
+      "quickRefundMs": 4896.64
+    }
+  },
+  "largeTables": {
+    "date": "2026-10-15T01:19:40.426081+08:00",
+    "finishedAt": "2026-10-15T01:21:39.825841+08:00",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 2,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": false,
+      "businessClockZone": "Asia/Shanghai"
+    },
+    "fixture": {
+      "syntheticRefundTasks": 100000,
+      "syntheticOrders": 105000,
+      "refundDistribution": {
+        "SUCCEEDED": 90000,
+        "FAILED": 5000,
+        "PENDING_FUTURE": 3000,
+        "PENDING_DUE": 500,
+        "PROCESSING_EXPIRED": 500,
+        "PROCESSING_FUTURE": 1000
+      },
+      "pendingUnpaidOrders": 5000,
+      "onlyCutoffInitiallyDue": 500,
+      "fixturesNeverSentToProvider": true
+    },
+    "parameters": {
+      "rows": 100000,
+      "repeats": 20
+    },
+    "queryResults": {
+      "refundCandidates": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 0.81,
+        "p95Ms": 1.03,
+        "returnedRows": 20,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 2.0,
+          "Handler_read_next": 38.0,
+          "Handler_read_rnd_next": 41.0
+        },
+        "explain": [
+          {
+            "id": 1,
+            "select_type": "PRIMARY",
+            "table": "refund_task",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "idx_refund_retry,idx_refund_lease",
+            "key": "idx_refund_retry",
+            "key_len": "71",
+            "ref": null,
+            "rows": 500,
+            "filtered": 100.0,
+            "Extra": "Using where; Using index"
+          },
+          {
+            "id": 2,
+            "select_type": "UNION",
+            "table": "refund_task",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "idx_refund_retry,idx_refund_lease",
+            "key": "idx_refund_lease",
+            "key_len": "72",
+            "ref": null,
+            "rows": 500,
+            "filtered": 100.0,
+            "Extra": "Using where; Using index"
+          },
+          {
+            "id": 3,
+            "select_type": "UNION RESULT",
+            "table": "<union1,2>",
+            "partitions": null,
+            "type": "ALL",
+            "possible_keys": null,
+            "key": null,
+            "key_len": null,
+            "ref": null,
+            "rows": null,
+            "filtered": null,
+            "Extra": "Using temporary; Using filesort"
+          }
+        ],
+        "explainAnalyze": "-> Limit: 20 row(s)  (cost=223..223 rows=20) (actual time=0.134..0.136 rows=20 loops=1)\n    -> Sort: id, limit input to 20 row(s) per chunk  (cost=223..223 rows=20) (actual time=0.133..0.134 rows=20 loops=1)\n        -> Table scan on <union temporary>  (cost=207..210 rows=40) (actual time=0.112..0.116 rows=40 loops=1)\n            -> Union all materialize  (cost=207..207 rows=40) (actual time=0.112..0.112 rows=40 loops=1)\n                -> Limit: 20 row(s)  (cost=102 rows=20) (actual time=0.0454..0.0573 rows=20 loops=1)\n                    -> Filter: ((refund_task.`status` = 'PENDING') and (refund_task.next_retry_time <= TIMESTAMP'2026-10-15 01:21:23.615083'))  (cost=102 rows=500) (actual time=0.0449..0.0555 rows=20 loops=1)\n                        -> Covering index range scan on refund_task using idx_refund_retry over (status = 'PENDING' AND next_retry_time < '2026-10-15 01:21:24')  (cost=102 rows=500) (actual time=0.0424..0.0473 rows=20 loops=1)\n                -> Limit: 20 row(s)  (cost=101 rows=20) (actual time=0.0296..0.0409 rows=20 loops=1)\n                    -> Filter: ((refund_task.`status` = 'PROCESSING') and (refund_task.lease_until < TIMESTAMP'2026-10-15 01:21:23.615083'))  (cost=101 rows=500) (actual time=0.0295..0.0401 rows=20 loops=1)\n                        -> Covering index range scan on refund_task using idx_refund_lease over (status = 'PROCESSING' AND NULL < lease_until < '2026-10-15 01:21:24')  (cost=101 rows=500) (actual time=0.0283..0.0323 rows=20 loops=1)\n"
+      },
+      "timeoutCurrentCutoffOnly": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 10.59,
+        "p95Ms": 14.26,
+        "returnedRows": 100,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 3.0,
+          "Handler_read_next": 4599.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explain": [
+          {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "o",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "idx_order_timeout",
+            "key": "idx_order_timeout",
+            "key_len": "5",
+            "ref": "const,const",
+            "rows": 5000,
+            "filtered": 100.0,
+            "Extra": null
+          },
+          {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "m",
+            "partitions": null,
+            "type": "eq_ref",
+            "possible_keys": "PRIMARY",
+            "key": "PRIMARY",
+            "key_len": "8",
+            "ref": "campus_rel_acc456a769.o.meal_session_id",
+            "rows": 1,
+            "filtered": 100.0,
+            "Extra": "Using where"
+          }
+        ],
+        "explainAnalyze": "-> Limit: 100 row(s)  (cost=2996 rows=100) (actual time=11.1..11.4 rows=100 loops=1)\n    -> Filter: ((o.order_time <= TIMESTAMP'2026-10-15 01:06:23.615083') or (m.cutoff_time <= TIMESTAMP'2026-10-15 01:21:23.615083'))  (cost=2996 rows=5000) (actual time=11.1..11.4 rows=100 loops=1)\n        -> Nested loop left join  (cost=2996 rows=5000) (actual time=0.133..10.7 rows=4600 loops=1)\n            -> Index lookup on o using idx_order_timeout (status=1, pay_status=0)  (cost=1246 rows=5000) (actual time=0.12..9.16 rows=4600 loops=1)\n            -> Single-row index lookup on m using PRIMARY (id=o.meal_session_id)  (cost=0.25 rows=1) (actual time=145e-6..171e-6 rows=1 loops=4600)\n"
+      },
+      "timeoutSplitCutoffOnly": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 14.43,
+        "p95Ms": 17.24,
+        "returnedRows": 100,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 3.0,
+          "Handler_read_next": 5002.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explain": [
+          {
+            "id": 1,
+            "select_type": "PRIMARY",
+            "table": "orders",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "idx_order_timeout",
+            "key": "idx_order_timeout",
+            "key_len": "10",
+            "ref": null,
+            "rows": 1,
+            "filtered": 100.0,
+            "Extra": "Using where; Using index"
+          },
+          {
+            "id": 2,
+            "select_type": "UNION",
+            "table": "m",
+            "partitions": null,
+            "type": "index",
+            "possible_keys": "PRIMARY",
+            "key": "idx_meal_date",
+            "key_len": "12",
+            "ref": null,
+            "rows": 2,
+            "filtered": 50.0,
+            "Extra": "Using where; Using index; Using temporary; Using filesort"
+          },
+          {
+            "id": 2,
+            "select_type": "UNION",
+            "table": "o",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "idx_order_timeout,idx_order_session",
+            "key": "idx_order_timeout",
+            "key_len": "10",
+            "ref": null,
+            "rows": 5000,
+            "filtered": 10.0,
+            "Extra": "Using index condition; Using where; Using join buffer (hash join)"
+          }
+        ],
+        "explainAnalyze": "-> Limit: 100 row(s)  (cost=0 rows=0) (actual time=24.1..24.2 rows=100 loops=1)\n    -> Append  (cost=0 rows=0) (actual time=24.1..24.1 rows=100 loops=1)\n        -> Stream results  (cost=0.46 rows=1) (actual time=0.0387..0.0387 rows=0 loops=1)\n            -> Limit: 100 row(s)  (cost=0.46 rows=1) (actual time=0.0379..0.0379 rows=0 loops=1)\n                -> Filter: ((orders.pay_status = 0) and (orders.`status` = 1) and (orders.order_time <= TIMESTAMP'2026-10-15 01:06:23.615083'))  (cost=0.46 rows=1) (actual time=0.0374..0.0374 rows=0 loops=1)\n                    -> Covering index range scan on orders using idx_order_timeout over (status = 1 AND pay_status = 0 AND order_time < '2026-10-15 01:06:24')  (cost=0.46 rows=1) (actual time=0.037..0.037 rows=0 loops=1)\n        -> Stream results  (actual time=24..24.1 rows=100 loops=1)\n            -> Limit: 100 row(s)  (actual time=24..24 rows=100 loops=1)\n                -> Sort: m.cutoff_time, o.id, limit input to 100 row(s) per chunk  (actual time=24..24 rows=100 loops=1)\n                    -> Stream results  (cost=2251 rows=500) (actual time=22.3..23.9 rows=500 loops=1)\n                        -> Inner hash join (o.meal_session_id = m.id)  (cost=2251 rows=500) (actual time=22.3..23.7 rows=500 loops=1)\n                            -> Index range scan on o using idx_order_timeout over (status = 1 AND pay_status = 0 AND '2026-10-15 01:06:24' <= order_time), with index condition: ((o.pay_status = 0) and (o.`status` = 1) and (o.order_time > TIMESTAMP'2026-10-15 01:06:23.615083'))  (cost=360 rows=5000) (actual time=0.155..22.7 rows=5000 loops=1)\n                            -> Hash\n                                -> Filter: (m.cutoff_time <= TIMESTAMP'2026-10-15 01:21:23.615083')  (cost=0.45 rows=1) (actual time=0.0087..0.0129 rows=1 loops=1)\n                                    -> Covering index scan on m using idx_meal_date  (cost=0.45 rows=2) (actual time=0.0076..0.0113 rows=2 loops=1)\n"
+      },
+      "timeoutCurrentMixed": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 1.16,
+        "p95Ms": 1.95,
+        "returnedRows": 100,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 2.0,
+          "Handler_read_next": 99.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explain": [
+          {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "o",
+            "partitions": null,
+            "type": "ref",
+            "possible_keys": "idx_order_timeout",
+            "key": "idx_order_timeout",
+            "key_len": "5",
+            "ref": "const,const",
+            "rows": 5000,
+            "filtered": 100.0,
+            "Extra": null
+          },
+          {
+            "id": 1,
+            "select_type": "SIMPLE",
+            "table": "m",
+            "partitions": null,
+            "type": "eq_ref",
+            "possible_keys": "PRIMARY",
+            "key": "PRIMARY",
+            "key_len": "8",
+            "ref": "campus_rel_acc456a769.o.meal_session_id",
+            "rows": 1,
+            "filtered": 100.0,
+            "Extra": "Using where"
+          }
+        ],
+        "explainAnalyze": "-> Limit: 100 row(s)  (cost=2996 rows=100) (actual time=0.121..0.303 rows=100 loops=1)\n    -> Filter: ((o.order_time <= TIMESTAMP'2026-10-15 01:06:23.615083') or (m.cutoff_time <= TIMESTAMP'2026-10-15 01:21:23.615083'))  (cost=2996 rows=5000) (actual time=0.121..0.298 rows=100 loops=1)\n        -> Nested loop left join  (cost=2996 rows=5000) (actual time=0.119..0.287 rows=100 loops=1)\n            -> Index lookup on o using idx_order_timeout (status=1, pay_status=0)  (cost=1246 rows=5000) (actual time=0.11..0.251 rows=100 loops=1)\n            -> Single-row index lookup on m using PRIMARY (id=o.meal_session_id)  (cost=0.25 rows=1) (actual time=180e-6..215e-6 rows=1 loops=100)\n"
+      },
+      "timeoutSplitMixed": {
+        "repeats": 20,
+        "warmupQueries": 3,
+        "p50Ms": 1.56,
+        "p95Ms": 3.21,
+        "returnedRows": 100,
+        "handlerReadsPerCall": {
+          "Handler_read_key": 1.0,
+          "Handler_read_next": 99.0,
+          "Handler_read_rnd_next": 0.0
+        },
+        "explain": [
+          {
+            "id": 1,
+            "select_type": "PRIMARY",
+            "table": "orders",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "idx_order_timeout",
+            "key": "idx_order_timeout",
+            "key_len": "10",
+            "ref": null,
+            "rows": 500,
+            "filtered": 100.0,
+            "Extra": "Using where; Using index"
+          },
+          {
+            "id": 2,
+            "select_type": "UNION",
+            "table": "m",
+            "partitions": null,
+            "type": "index",
+            "possible_keys": "PRIMARY",
+            "key": "idx_meal_date",
+            "key_len": "12",
+            "ref": null,
+            "rows": 2,
+            "filtered": 50.0,
+            "Extra": "Using where; Using index; Using temporary; Using filesort"
+          },
+          {
+            "id": 2,
+            "select_type": "UNION",
+            "table": "o",
+            "partitions": null,
+            "type": "range",
+            "possible_keys": "idx_order_timeout,idx_order_session",
+            "key": "idx_order_timeout",
+            "key_len": "10",
+            "ref": null,
+            "rows": 4500,
+            "filtered": 10.0,
+            "Extra": "Using index condition; Using where; Using join buffer (hash join)"
+          }
+        ],
+        "explainAnalyze": "-> Limit: 100 row(s)  (cost=99.5 rows=99) (actual time=0.0825..0.223 rows=100 loops=1)\n    -> Append  (cost=99.5 rows=99) (actual time=0.0814..0.209 rows=100 loops=1)\n        -> Stream results  (cost=101 rows=100) (actual time=0.0803..0.198 rows=100 loops=1)\n            -> Limit: 100 row(s)  (cost=101 rows=100) (actual time=0.0772..0.176 rows=100 loops=1)\n                -> Filter: ((orders.pay_status = 0) and (orders.`status` = 1) and (orders.order_time <= TIMESTAMP'2026-10-15 01:06:23.615083'))  (cost=101 rows=500) (actual time=0.0766..0.164 rows=100 loops=1)\n                    -> Covering index range scan on orders using idx_order_timeout over (status = 1 AND pay_status = 0 AND order_time < '2026-10-15 01:06:24')  (cost=101 rows=500) (actual time=0.0718..0.128 rows=100 loops=1)\n        -> Stream results  (never executed)\n            -> Limit: 100 row(s)  (never executed)\n                -> Sort: m.cutoff_time, o.id, limit input to 100 row(s) per chunk  (never executed)\n                    -> Stream results  (cost=2026 rows=450) (never executed)\n                        -> Inner hash join (o.meal_session_id = m.id)  (cost=2026 rows=450) (never executed)\n                            -> Index range scan on o using idx_order_timeout over (status = 1 AND pay_status = 0 AND '2026-10-15 01:06:24' <= order_time), with index condition: ((o.pay_status = 0) and (o.`status` = 1) and (o.order_time > TIMESTAMP'2026-10-15 01:06:23.615083'))  (cost=324 rows=4500) (never executed)\n                            -> Hash\n                                -> Filter: (m.cutoff_time <= TIMESTAMP'2026-10-15 01:21:23.615083')  (cost=0.45 rows=1) (never executed)\n                                    -> Index scan on m using idx_meal_date  (cost=0.45 rows=2) (never executed)\n"
+      }
+    },
+    "checks": [
+      {
+        "check": "large refund candidate query returns bounded eligible unique tasks",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutCurrentCutoffOnly returns only expired unpaid fixture orders",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutSplitCutoffOnly returns only expired unpaid fixture orders",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutCurrentMixed has a full batch without duplicates",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "timeoutSplitMixed has a full batch without duplicates",
+        "passed": true,
+        "evidence": null
+      }
+    ]
+  },
+  "steadyLoads": {
+    "date": "2026-10-15T01:42:13.725272+08:00",
+    "finishedAt": "2026-10-15T02:02:31.848085+08:00",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 2,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": false,
+      "businessClockZone": "Asia/Shanghai"
+    },
+    "parameters": {
+      "seconds": 120.0,
+      "rounds": 3,
+      "warmup": 10.0,
+      "workers": 16,
+      "pool": 10,
+      "scenarios": "hot_session,spread_sessions",
+      "seeds": "20261015,20261016,20261017",
+      "race_only": false,
+      "skip_races": true
+    },
+    "loadRuns": [
+      {
+        "scenario": "hot_session",
+        "poolPerInstance": 10,
+        "workers": 16,
+        "requestedSeconds": 120.0,
+        "elapsedSeconds": 120.11,
+        "outcomes": {
+          "success": 10155,
+          "business_rejection": 1923,
+          "system_error": 0
+        },
+        "checkoutRequestsPerSecond": 100.56,
+        "successfulCheckoutsPerSecond": 84.55,
+        "allBusinessHttpRequestsPerSecond": 269.67,
+        "checkoutP50Ms": 80.28,
+        "checkoutP95Ms": 110.41,
+        "checkoutP99Ms": 144.33,
+        "successP95Ms": 111.65,
+        "businessRejectionP95Ms": 102.92,
+        "dbGlobalDelta": {
+          "Innodb_row_lock_time": 1438108,
+          "Innodb_row_lock_waits": 22136,
+          "lock_deadlocks": 0
+        },
+        "schemaLockWaitPeak": {
+          "meal_session/PRIMARY": 101
+        },
+        "poolActivePeak": 8,
+        "poolWaitThreadsPeak": 0,
+        "poolWaitCountDelta": 0,
+        "poolWaitMillisDelta": 0,
+        "dbRetryDelta": 0,
+        "metricSamplingErrors": [],
+        "workerErrors": [],
+        "samples": 74,
+        "clock": {
+          "implementation": "QueryPerformanceCounter()",
+          "resolutionSeconds": 1e-07
+        },
+        "networkHandshakePendingPeak": 0,
+        "finalBusinessDataVerified": true,
+        "round": 1
+      },
+      {
+        "scenario": "spread_sessions",
+        "poolPerInstance": 10,
+        "workers": 16,
+        "requestedSeconds": 120.0,
+        "elapsedSeconds": 120.45,
+        "outcomes": {
+          "success": 17953,
+          "business_rejection": 0,
+          "system_error": 0
+        },
+        "checkoutRequestsPerSecond": 149.05,
+        "successfulCheckoutsPerSecond": 149.05,
+        "allBusinessHttpRequestsPerSecond": 447.15,
+        "checkoutP50Ms": 37.21,
+        "checkoutP95Ms": 66.09,
+        "checkoutP99Ms": 92.38,
+        "successP95Ms": 66.09,
+        "businessRejectionP95Ms": null,
+        "dbGlobalDelta": {
+          "Innodb_row_lock_time": 0,
+          "Innodb_row_lock_waits": 0,
+          "lock_deadlocks": 0
+        },
+        "schemaLockWaitPeak": {},
+        "poolActivePeak": 7,
+        "poolWaitThreadsPeak": 0,
+        "poolWaitCountDelta": 0,
+        "poolWaitMillisDelta": 0,
+        "dbRetryDelta": 0,
+        "metricSamplingErrors": [],
+        "workerErrors": [],
+        "samples": 65,
+        "clock": {
+          "implementation": "QueryPerformanceCounter()",
+          "resolutionSeconds": 1e-07
+        },
+        "networkHandshakePendingPeak": 0,
+        "finalBusinessDataVerified": true,
+        "round": 1
+      },
+      {
+        "scenario": "spread_sessions",
+        "poolPerInstance": 10,
+        "workers": 16,
+        "requestedSeconds": 120.0,
+        "elapsedSeconds": 120.4,
+        "outcomes": {
+          "success": 18168,
+          "business_rejection": 0,
+          "system_error": 0
+        },
+        "checkoutRequestsPerSecond": 150.9,
+        "successfulCheckoutsPerSecond": 150.9,
+        "allBusinessHttpRequestsPerSecond": 452.69,
+        "checkoutP50Ms": 36.84,
+        "checkoutP95Ms": 62.96,
+        "checkoutP99Ms": 89.44,
+        "successP95Ms": 62.96,
+        "businessRejectionP95Ms": null,
+        "dbGlobalDelta": {
+          "Innodb_row_lock_time": 0,
+          "Innodb_row_lock_waits": 0,
+          "lock_deadlocks": 0
+        },
+        "schemaLockWaitPeak": {},
+        "poolActivePeak": 8,
+        "poolWaitThreadsPeak": 0,
+        "poolWaitCountDelta": 0,
+        "poolWaitMillisDelta": 0,
+        "dbRetryDelta": 0,
+        "metricSamplingErrors": [],
+        "workerErrors": [],
+        "samples": 62,
+        "clock": {
+          "implementation": "QueryPerformanceCounter()",
+          "resolutionSeconds": 1e-07
+        },
+        "networkHandshakePendingPeak": 0,
+        "finalBusinessDataVerified": true,
+        "round": 2
+      },
+      {
+        "scenario": "hot_session",
+        "poolPerInstance": 10,
+        "workers": 16,
+        "requestedSeconds": 120.0,
+        "elapsedSeconds": 120.3,
+        "outcomes": {
+          "success": 10008,
+          "business_rejection": 2082,
+          "system_error": 0
+        },
+        "checkoutRequestsPerSecond": 100.5,
+        "successfulCheckoutsPerSecond": 83.19,
+        "allBusinessHttpRequestsPerSecond": 266.9,
+        "checkoutP50Ms": 80.45,
+        "checkoutP95Ms": 116.26,
+        "checkoutP99Ms": 147.53,
+        "successP95Ms": 117.27,
+        "businessRejectionP95Ms": 107.0,
+        "dbGlobalDelta": {
+          "Innodb_row_lock_time": 1443172,
+          "Innodb_row_lock_waits": 21995,
+          "lock_deadlocks": 0
+        },
+        "schemaLockWaitPeak": {
+          "meal_session/PRIMARY": 111
+        },
+        "poolActivePeak": 8,
+        "poolWaitThreadsPeak": 0,
+        "poolWaitCountDelta": 0,
+        "poolWaitMillisDelta": 0,
+        "dbRetryDelta": 0,
+        "metricSamplingErrors": [],
+        "workerErrors": [],
+        "samples": 79,
+        "clock": {
+          "implementation": "QueryPerformanceCounter()",
+          "resolutionSeconds": 1e-07
+        },
+        "networkHandshakePendingPeak": 0,
+        "finalBusinessDataVerified": true,
+        "round": 2
+      },
+      {
+        "scenario": "hot_session",
+        "poolPerInstance": 10,
+        "workers": 16,
+        "requestedSeconds": 120.0,
+        "elapsedSeconds": 120.37,
+        "outcomes": {
+          "success": 10075,
+          "business_rejection": 2055,
+          "system_error": 0
+        },
+        "checkoutRequestsPerSecond": 100.78,
+        "successfulCheckoutsPerSecond": 83.7,
+        "allBusinessHttpRequestsPerSecond": 268.19,
+        "checkoutP50Ms": 78.96,
+        "checkoutP95Ms": 116.68,
+        "checkoutP99Ms": 162.58,
+        "successP95Ms": 118.09,
+        "businessRejectionP95Ms": 107.34,
+        "dbGlobalDelta": {
+          "Innodb_row_lock_time": 1448850,
+          "Innodb_row_lock_waits": 22117,
+          "lock_deadlocks": 0
+        },
+        "schemaLockWaitPeak": {
+          "meal_session/PRIMARY": 120
+        },
+        "poolActivePeak": 8,
+        "poolWaitThreadsPeak": 0,
+        "poolWaitCountDelta": 0,
+        "poolWaitMillisDelta": 0,
+        "dbRetryDelta": 0,
+        "metricSamplingErrors": [],
+        "workerErrors": [],
+        "samples": 81,
+        "clock": {
+          "implementation": "QueryPerformanceCounter()",
+          "resolutionSeconds": 1e-07
+        },
+        "networkHandshakePendingPeak": 0,
+        "finalBusinessDataVerified": true,
+        "round": 3
+      },
+      {
+        "scenario": "spread_sessions",
+        "poolPerInstance": 10,
+        "workers": 16,
+        "requestedSeconds": 120.0,
+        "elapsedSeconds": 120.22,
+        "outcomes": {
+          "success": 17744,
+          "business_rejection": 0,
+          "system_error": 0
+        },
+        "checkoutRequestsPerSecond": 147.6,
+        "successfulCheckoutsPerSecond": 147.6,
+        "allBusinessHttpRequestsPerSecond": 442.8,
+        "checkoutP50Ms": 37.4,
+        "checkoutP95Ms": 68.49,
+        "checkoutP99Ms": 94.15,
+        "successP95Ms": 68.49,
+        "businessRejectionP95Ms": null,
+        "dbGlobalDelta": {
+          "Innodb_row_lock_time": 0,
+          "Innodb_row_lock_waits": 0,
+          "lock_deadlocks": 0
+        },
+        "schemaLockWaitPeak": {},
+        "poolActivePeak": 6,
+        "poolWaitThreadsPeak": 0,
+        "poolWaitCountDelta": 0,
+        "poolWaitMillisDelta": 0,
+        "dbRetryDelta": 0,
+        "metricSamplingErrors": [],
+        "workerErrors": [],
+        "samples": 69,
+        "clock": {
+          "implementation": "QueryPerformanceCounter()",
+          "resolutionSeconds": 1e-07
+        },
+        "networkHandshakePendingPeak": 0,
+        "finalBusinessDataVerified": true,
+        "round": 3
+      }
+    ]
+  },
+  "seededRaces": {
+    "date": "2026-10-15T02:08:27.037105+08:00",
+    "finishedAt": "2026-10-15T02:17:25.788744+08:00",
+    "parameters": {
+      "seconds": 120,
+      "rounds": 3,
+      "warmup": 10,
+      "workers": 16,
+      "pool": 10,
+      "scenarios": "hot_session,spread_sessions",
+      "seeds": "20261015,20261016,20261017",
+      "race_only": true,
+      "skip_races": false,
+      "port_mode": "dynamic"
+    },
+    "races": [
+      {
+        "seed": 20261015,
+        "orders": 48,
+        "operationInputs": 432,
+        "attemptOutcomes": {
+          "success": 432,
+          "business_rejection": 0,
+          "system_error": 0,
+          "transport_error": 222
+        },
+        "intentionalProcessKills": 1,
+        "actualPayments": 48,
+        "actualRefunds": 48,
+        "externalRefundCalls": 48,
+        "elapsedIncludingRestartSeconds": 109.35,
+        "refundAutoScan": true,
+        "refundScanMs": 200,
+        "timeoutScanMs": 200,
+        "leaseSeconds": 5,
+        "finalBusinessDataVerified": true,
+        "replayScope": "seed reproduces inputs, not exact OS thread interleaving"
+      },
+      {
+        "seed": 20261016,
+        "orders": 48,
+        "operationInputs": 432,
+        "attemptOutcomes": {
+          "success": 432,
+          "business_rejection": 0,
+          "system_error": 0,
+          "transport_error": 220
+        },
+        "intentionalProcessKills": 1,
+        "actualPayments": 48,
+        "actualRefunds": 48,
+        "externalRefundCalls": 48,
+        "elapsedIncludingRestartSeconds": 113.5,
+        "refundAutoScan": true,
+        "refundScanMs": 200,
+        "timeoutScanMs": 200,
+        "leaseSeconds": 5,
+        "finalBusinessDataVerified": true,
+        "replayScope": "seed reproduces inputs, not exact OS thread interleaving"
+      },
+      {
+        "seed": 20261017,
+        "orders": 48,
+        "operationInputs": 432,
+        "attemptOutcomes": {
+          "success": 432,
+          "business_rejection": 0,
+          "system_error": 0,
+          "transport_error": 209
+        },
+        "intentionalProcessKills": 1,
+        "actualPayments": 48,
+        "actualRefunds": 48,
+        "externalRefundCalls": 48,
+        "elapsedIncludingRestartSeconds": 116.41,
+        "refundAutoScan": true,
+        "refundScanMs": 200,
+        "timeoutScanMs": 200,
+        "leaseSeconds": 5,
+        "finalBusinessDataVerified": true,
+        "replayScope": "seed reproduces inputs, not exact OS thread interleaving"
+      }
+    ]
+  },
+  "regression": {
+    "date": "2026-10-15T02:17:28.807317+08:00",
+    "finishedAt": "2026-10-15T02:20:43.963744+08:00",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 2,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": false,
+      "businessClockZone": "Asia/Shanghai"
+    },
+    "checks": [
+      {
+        "check": "submit.beforeCommit: observer sees only committed data",
+        "passed": true,
+        "evidence": {
+          "orderVisible": false,
+          "reserved": 0,
+          "cartQuantity": "1"
+        }
+      },
+      {
+        "check": "real pre-commit process crash rolls back all writes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "submit.beforeCommit: restart and cross-instance same-key retry return one order",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "submit.afterCommit: observer sees only committed data",
+        "passed": true,
+        "evidence": {
+          "orderVisible": true,
+          "reserved": 1,
+          "cartQuantity": "0"
+        }
+      },
+      {
+        "check": "submit.afterCommit: restart and cross-instance same-key retry return one order",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "PROCESSING provider response persists submitted intent for later query",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "merchant committed refund but transport timeout leaves recoverable local intent",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "timeout retry reuses refund number: repeated calls, one actual refund",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 2,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "external refund committed while local confirmation writes remain uncommitted",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "app and merchant restart recover committed external refund without double refund",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 2,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "late old lease token cannot overwrite new success with failure",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 2,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1,
+          "attempts": 2,
+          "failures": 0,
+          "staleWriteRejected": true
+        }
+      },
+      {
+        "check": "submitted provider intent recovers by query without another refund POST",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 1,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "two apps: 50 same-key requests persist one order and reserve once",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "server amount ignores client pricing fields",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same key with different semantic parameters is rejected",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same key ignores new cart and later server price; preserves both original result and new cart",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same user can place another order in the same meal using a new key",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "different keys cannot simultaneously consume one cart",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "cross-instance add and checkout conserve cart quantities",
+        "passed": true,
+        "evidence": {
+          "orderedQuantity": 2,
+          "remainingCartQuantity": 0
+        }
+      },
+      {
+        "check": "two apps: 20 users contest five portions; losers retain carts",
+        "passed": true,
+        "evidence": {
+          "success": 5,
+          "businessRejections": 15,
+          "systemErrors": 0
+        }
+      },
+      {
+        "check": "duplicate payment/cancel/recovery competition preserves state and releases once",
+        "passed": true,
+        "evidence": {
+          "refundCalls": 1,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1
+        }
+      },
+      {
+        "check": "two apps: conditional claim has one owner for each unexpired lease",
+        "passed": true,
+        "evidence": {
+          "attempts": 1
+        }
+      },
+      {
+        "check": "isolated raw child-status update demonstrates parent FK shared lock",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "capacity-first cancellation still rolls back when later order update fails",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "normal cancellation after injected failure releases one portion",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "real lock timeout retries the full checkout transaction with the original key",
+        "passed": true,
+        "evidence": {
+          "retryDelta": 1
+        }
+      },
+      {
+        "check": "retry exhaustion returns system 503, rolls back and keeps cart/capacity intact",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "original key succeeds after an exhausted retry and contention clears",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "real InnoDB deadlock rolls back earlier write and retries in a fresh transaction",
+        "passed": true,
+        "evidence": {
+          "retryDelta": 2,
+          "deadlockDelta": 1,
+          "row1": 11,
+          "row2": 2
+        }
+      },
+      {
+        "check": "all isolated business invariants reconcile after faults and races",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "V2 through V5 applied once in isolated schema",
+        "passed": true,
+        "evidence": null
+      }
+    ]
+  },
+  "failedDiscoveryRun": {
+    "date": "2026-10-15T01:26:36.617092+08:00",
+    "finishedAt": "2026-10-15T01:36:47.476786+08:00",
+    "status": "failed",
+    "scenario": "spread_sessions",
+    "requestedSeconds": 120.0,
+    "outcomes": {
+      "success": 18176,
+      "business_rejection": 0,
+      "system_error": 3
+    },
+    "auxiliaryErrors": 1,
+    "errorClasses": [
+      "ConnectTimeout"
+    ],
+    "dbGlobalDelta": {
+      "Innodb_row_lock_time": 0,
+      "Innodb_row_lock_waits": 0,
+      "lock_deadlocks": 0
+    },
+    "poolWaitMillisDelta": 0,
+    "subsequentAction": "Released per-phase HTTP sessions; added TCP sampling/JVM diagnostics; reran all six steady-load cases without silent retries.",
+    "rootCause": "Unconfirmed. A later passing run does not establish cause or prove repair."
+  },
+  "privateReports": {
+    "background": "ae783cb6cc",
+    "steady": "86e657b524",
+    "races": "e0a7b2e0cb",
+    "scale": "acc456a769",
+    "regression": "776130e3e7"
+  },
+  "limits": [
+    "Loopback two-process experiments, simulated money only",
+    "Synthetic scale fixtures were never submitted to the provider",
+    "200 ms scheduled-test intervals and short leases differ from business defaults",
+    "Three two-minute load windows per scenario, not an overnight soak or production capacity certification",
+    "No end-to-end CPU/IO attribution, real merchant reconciliation, cross-machine partition or DB failover",
+    "Retained connection-timeout discovery has an unconfirmed cause"
+  ]
+}

@@ -18,10 +18,14 @@ public class LocalReliabilityController {
     private final JdbcTemplate jdbc;
     private final com.alibaba.druid.pool.DruidDataSource pool;
     private final com.sky.service.RefundService refunds;
+    private final com.sky.service.RefundDispatcher dispatcher;
+    private final com.sky.task.OrderTask timeouts;
     public LocalReliabilityController(ReliabilityProbe probes, DatabaseRetry retry, JdbcTemplate jdbc,
-                                      com.alibaba.druid.pool.DruidDataSource pool, com.sky.service.RefundService refunds) {
+                                      com.alibaba.druid.pool.DruidDataSource pool, com.sky.service.RefundService refunds,
+                                      com.sky.service.RefundDispatcher dispatcher, com.sky.task.OrderTask timeouts) {
         this.probes = probes; this.retry = retry; this.jdbc = jdbc; this.pool = pool;
         this.refunds = refunds;
+        this.dispatcher = dispatcher; this.timeouts = timeouts;
     }
     @PostMapping("/gates/{id}") public Result<String> arm(@PathVariable String id, @RequestBody Map<String,String> request) {
         probes.arm(id, request.get("stage"), request.get("key")); return Result.success();
@@ -38,6 +42,8 @@ public class LocalReliabilityController {
         result.put("poolActive", pool.getActiveCount()); result.put("poolMax", pool.getMaxActive());
         result.put("poolWaitThreads", pool.getWaitThreadCount()); result.put("poolWaitCount", pool.getNotEmptyWaitCount());
         result.put("poolWaitMillis", pool.getNotEmptyWaitMillis());
+        result.put("refundExecutor", dispatcher.metrics()); result.put("timeoutScanner", timeouts.metrics());
+        result.put("synchronousRefundScan", probes.synchronousRefundScan());
         return Result.success(result);
     }
     // Table created only inside the runner's disposable schema. No arbitrary SQL or table name input.

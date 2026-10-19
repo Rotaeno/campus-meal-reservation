@@ -24,7 +24,17 @@ ROOT = Path(__file__).resolve().parent.parent
 RUNTIME = Path(os.environ.get('SKY_RUNTIME_DIR', ROOT.parent / '.runtime'))
 
 
-def port():
+def port(low=False):
+    if low:
+        for _ in range(100):
+            value = 10000 + secrets.randbelow(20000)
+            try:
+                with socket.socket() as sock:
+                    sock.bind(('127.0.0.1', value))
+                return value
+            except OSError:
+                pass
+        raise AssertionError('No free isolated listener port in 10000..29999')
     with socket.socket() as sock:
         sock.bind(('127.0.0.1', 0))
         return sock.getsockname()[1]
@@ -49,7 +59,7 @@ def listening(value):
 
 
 class Lab:
-    def __init__(self):
+    def __init__(self, port_mode='dynamic'):
         self.run = uuid.uuid4().hex[:10]
         self.directory = ROOT / '.local' / 'reliability' / self.run
         self.directory.mkdir(parents=True)
@@ -64,14 +74,26 @@ class Lab:
         self.owned = []
         self.apps = {}
         self.admin = {}
-        self.ports = {name: port() for name in ('a', 'b', 'redis', 'provider')}
+        assert port_mode in ('dynamic', 'low')
+        self.port_mode = port_mode
+        self.ports = {}
+        for name in ('a', 'b', 'redis', 'provider'):
+            candidate = port(port_mode == 'low')
+            while candidate in self.ports.values():
+                candidate = port(port_mode == 'low')
+            self.ports[name] = candidate
         self.provider = 'http://127.0.0.1:' + str(self.ports['provider'])
         self.pool = 10
+        self.app_overrides = {}
+        self.jar = ROOT / 'sky-take-out/sky-server/target/sky-server-1.0-SNAPSHOT.jar'
         self.serial = 0
         self.actor_serial = 0
         self.checks = []
         self.http = threading.local()
         self.http_sessions = []
+        self.network_diagnostics = False
+        self.diagnostic_lock = threading.Lock()
+        self.diagnostic_captured = False
         self.environment = dict(os.environ,
                                 SKY_DB_PASSWORD=self.password, SKY_REDIS_PASSWORD=self.redis_password,
                                 SKY_ADMIN_JWT_SECRET=secrets.token_hex(16), SKY_USER_JWT_SECRET=secrets.token_hex(16),
@@ -112,8 +134,7 @@ class Lab:
         return next(iter(self.sql(query, args, root=root)[0].values()))
 
     def setup(self):
-        jar = ROOT / 'sky-take-out/sky-server/target/sky-server-1.0-SNAPSHOT.jar'
-        assert jar.exists(), 'Build backend with scripts/build.ps1 first'
+        assert self.jar.exists(), 'Build backend with scripts/build.ps1 first'
         if not listening(3306):
             self.mysql = self.spawn('mysql', [self.tools['mysql'] / 'bin/mysqld.exe', '--no-defaults',
                                     '--basedir=' + str(self.tools['mysql']), '--datadir=' + str(RUNTIME / 'mysql-data'),
@@ -160,7 +181,7 @@ class Lab:
 
     def start_app(self, name):
         args = [self.tools['java'] / 'bin/java.exe', '-Xms128m', '-Xmx384m', '-Dfile.encoding=UTF-8', '-jar',
-                ROOT / 'sky-take-out/sky-server/target/sky-server-1.0-SNAPSHOT.jar', '--spring.profiles.active=local',
+                self.jar, '--spring.profiles.active=local',
                 '--server.port=' + str(self.ports[name]), '--sky.datasource.database=' + self.schema,
                 '--sky.datasource.username=' + self.db_user, '--sky.redis.port=' + str(self.ports['redis']),
                 '--sky.redis.database=0', '--sky.local.reliability.enabled=true', '--sky.refund.scan-enabled=false',
@@ -173,6 +194,9 @@ class Lab:
                 '--debug=false', '--logging.level.root=warn', '--logging.level.com.sky=warn',
                 '--logging.level.com.sky.mapper=warn', '--logging.level.com.sky.service=warn',
                 '--logging.level.com.sky.controller=warn', '--logging.level.org.springframework=warn']
+        overrides = self.app_overrides.get(name, [])
+        keys = {value.split('=', 1)[0] for value in overrides}
+        args = [value for value in args if str(value).split('=', 1)[0] not in keys] + overrides
         proc = self.spawn('app-' + name, args)
         self.apps[name] = proc
         def ready():
@@ -200,6 +224,7 @@ class Lab:
         # Windows ephemeral ports and turns a service benchmark into a client-resource test.
         if not hasattr(self.http, 'session'):
             self.http.session = requests.Session()
+            self.http.connection_closes = 0
             self.http_sessions.append(self.http.session)
         response = self.http.session.request(method, self.base(name) + path, json=body,
                                              headers=self.admin[name] if admin else (actor['auth'] if actor else {}), timeout=20)
@@ -208,9 +233,36 @@ class Lab:
         except ValueError:
             result = {'code': None}
         result['_http'] = response.status_code
+        self.http.connection_closes += int(response.headers.get('Connection', '').lower() == 'close')
         if expected is not None:
             assert response.status_code == 200 and result.get('code') == expected, (method, path, response.status_code, result.get('msg'))
         return result
+
+    def release_thread_session(self):
+        session = getattr(self.http, 'session', None)
+        if session is not None:
+            session.close()
+            if session in self.http_sessions:
+                self.http_sessions.remove(session)
+            del self.http.session
+
+    def capture_failure(self, label):
+        if not self.network_diagnostics:
+            return
+        with self.diagnostic_lock:
+            if self.diagnostic_captured:
+                return
+            self.diagnostic_captured = True
+        from network_observation import snapshot
+        data = dict(snapshot({self.ports['a'], self.ports['b']}), appExitCodes={name: proc.poll() for name, proc in self.apps.items()})
+        (self.directory / ('network-failure-' + label + '.json')).write_text(json.dumps(data, indent=2), encoding='utf-8')
+        for name, proc in self.apps.items():
+            if proc.poll() is None:
+                dump = self.spawn('threads-' + name, [self.tools['java'] / 'bin/jstack.exe', str(proc.pid)])
+                try:
+                    dump.wait(timeout=15)
+                except subprocess.TimeoutExpired:
+                    self.stop(dump)
 
     def actor(self):
         self.actor_serial += 1
@@ -327,7 +379,7 @@ class Lab:
                 'refundAutoScan': False, 'businessClockZone': 'Asia/Shanghai'}
 
     def close(self):
-        for session in self.http_sessions:
+        for session in list(self.http_sessions):
             session.close()
         for proc in reversed(self.owned):
             if getattr(self, 'mysql', None) is proc:

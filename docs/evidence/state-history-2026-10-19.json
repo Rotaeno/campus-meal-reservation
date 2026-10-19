@@ -1,0 +1,3607 @@
+{
+  "date": "2026-10-19",
+  "status": "passed",
+  "baseCommit": "d1cba0d2b24f10979f1e53a2dd3ba5b287fe88ff",
+  "uncommittedChangesIncluded": true,
+  "jarSha256": "585559366b1bccbcd7b8cdef7261e203d07dc77b511d3bf1ee72994468c36984",
+  "javaUnit": {
+    "tests": 59,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "modelCheckerTests": {
+    "passed": 5,
+    "command": "python -m unittest discover -s scripts -p test_order_state_model.py -v"
+  },
+  "stateHistories": {
+    "privateRun": "5a2f38b5b0",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 2,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": false,
+      "businessClockZone": "Asia/Shanghai",
+      "instrumentation": "isolated InnoDB audit triggers",
+      "timeoutAutoScan": false,
+      "synchronousPhaseRefundAutoScan": false,
+      "recoveryPhaseRefundAutoScan": true,
+      "recoveryRefundScanMs": 200
+    },
+    "completeHistories": 24,
+    "operations": 126,
+    "committedAuditChanges": 110,
+    "committedSnapshotSamples": 408,
+    "automaticRecovery": {
+      "orders": 24,
+      "refunded": 14,
+      "compensatingRequests": 0
+    },
+    "uncertainPayment": {
+      "observationSeconds": 2,
+      "samples": 5,
+      "unassistedState": {
+        "status": 1,
+        "paid": 0,
+        "refund": "NONE"
+      },
+      "automaticPaymentReconciliation": false,
+      "explicitCallbackRedeliveries": 1,
+      "finalState": {
+        "status": 2,
+        "paid": 1,
+        "refund": "NONE"
+      },
+      "refundCalls": 0,
+      "queryCalls": 0,
+      "actualRefunds": 0,
+      "actualPayments": 1
+    },
+    "checks": [
+      {
+        "check": "same-order fresh seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order paid seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order preparing seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order ready seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order aged seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order completed seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order cancelled seed 20261019: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "staged fulfillment seed 20261019: actual precedence and exactly one redemption",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order fresh seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order paid seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order preparing seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order ready seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order aged seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order completed seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order cancelled seed 20261020: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "staged fulfillment seed 20261020: actual precedence and exactly one redemption",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order fresh seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order paid seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order preparing seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order ready seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order aged seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order completed seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "same-order cancelled seed 20261021: legal real-time HTTP history and committed changes",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "staged fulfillment seed 20261021: actual precedence and exactly one redemption",
+        "passed": true,
+        "evidence": null
+      },
+      {
+        "check": "automatic phase changes only pending refunds; independent ledger agrees without final pay/cancel calls",
+        "passed": true,
+        "evidence": {
+          "orders": 24,
+          "refunded": 14,
+          "compensatingRequests": 0
+        }
+      },
+      {
+        "check": "real refund crash rolls back confirmation and audit together; replacement adds one committed success",
+        "passed": true,
+        "evidence": {
+          "beforeCommittedChanges": 3,
+          "afterCommittedChanges": 4,
+          "refundCalls": 2,
+          "queryCalls": 0,
+          "actualRefunds": 1,
+          "actualPayments": 1,
+          "compensatingRequests": 0
+        }
+      },
+      {
+        "check": "lost payment callback is not called automatic recovery; one explicit redelivery applies it",
+        "passed": true,
+        "evidence": {
+          "observationSeconds": 2,
+          "samples": 5,
+          "unassistedState": {
+            "status": 1,
+            "paid": 0,
+            "refund": "NONE"
+          },
+          "automaticPaymentReconciliation": false,
+          "explicitCallbackRedeliveries": 1,
+          "finalState": {
+            "status": 2,
+            "paid": 1,
+            "refund": "NONE"
+          },
+          "refundCalls": 0,
+          "queryCalls": 0,
+          "actualRefunds": 0,
+          "actualPayments": 1
+        }
+      }
+    ],
+    "histories": [
+      {
+        "target": "fresh",
+        "seed": 20261019,
+        "initial": {
+          "status": 1,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 3,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 466900,
+            "endNs": 376077000,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 364659900,
+            "result": "ok"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 368700,
+            "endNs": 370544100,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 648800,
+            "endNs": 375700100,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 152000,
+            "endNs": 373514200,
+            "result": "reject"
+          },
+          {
+            "operation": "expire",
+            "instance": "a",
+            "startNs": 244100,
+            "endNs": 364324600,
+            "result": "false"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "paid",
+        "seed": 20261019,
+        "initial": {
+          "status": 2,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 363648100,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "a",
+            "startNs": 10604300,
+            "endNs": 362656100,
+            "result": "reject"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 19682800,
+            "endNs": 361430700,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 19191400,
+            "endNs": 360152000,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 10757100,
+            "endNs": 363357400,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          2,
+          1,
+          3,
+          4
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "preparing",
+        "seed": 20261019,
+        "initial": {
+          "status": 3,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 195000,
+            "endNs": 395239400,
+            "result": "ok"
+          },
+          {
+            "operation": "ready",
+            "instance": "a",
+            "startNs": 303100,
+            "endNs": 396376100,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 395848700,
+            "result": "reject"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 383100,
+            "endNs": 394852500,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          2,
+          3,
+          0,
+          1
+        ],
+        "committedChanges": 4,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "ready",
+        "seed": 20261019,
+        "initial": {
+          "status": 4,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": true,
+          "pickup": true
+        },
+        "history": [
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 380663900,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 120400,
+            "endNs": 384729500,
+            "result": "reject"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 14415300,
+            "endNs": 382365100,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 14274800,
+            "endNs": 380766100,
+            "result": "reject"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 14519300,
+            "endNs": 381176200,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 5,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "aged",
+        "seed": 20261019,
+        "initial": {
+          "status": 1,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 22419500,
+            "endNs": 400393900,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 399374900,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 323300,
+            "endNs": 399023300,
+            "result": "ok"
+          },
+          {
+            "operation": "expire",
+            "instance": "a",
+            "startNs": 126400,
+            "endNs": 384385300,
+            "result": "false"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 213600,
+            "endNs": 399643800,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 2,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "completed",
+        "seed": 20261019,
+        "initial": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": true,
+          "pickup": true
+        },
+        "history": [
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 383803500,
+            "result": "reject"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 253100,
+            "endNs": 380826700,
+            "result": "reject"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 340100,
+            "endNs": 385090000,
+            "result": "ok"
+          },
+          {
+            "operation": "ready",
+            "instance": "a",
+            "startNs": 152100,
+            "endNs": 381110100,
+            "result": "reject"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 426000,
+            "endNs": 385175500,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 5,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "cancelled",
+        "seed": 20261019,
+        "initial": {
+          "status": 6,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 396633200,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 115200,
+            "endNs": 393583700,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 19931100,
+            "endNs": 395543400,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 22306400,
+            "endNs": 394131200,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 19718900,
+            "endNs": 396248700,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 0
+          },
+          {
+            "before": [
+              6,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "staged_fulfillment",
+        "seed": 20261019,
+        "history": [
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 379560500,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 11286700,
+            "endNs": 391215500,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 783180000,
+            "endNs": 1161729100,
+            "result": "ok"
+          },
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 1521173800,
+            "endNs": 1875017400,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 1521297900,
+            "endNs": 1884754500,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 2243981600,
+            "endNs": 2589913000,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 2229648200,
+            "endNs": 2587382200,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "initial": {
+          "status": 2,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "precedenceEdges": 18,
+        "committedChanges": 5,
+        "compensatingRequests": 0,
+        "databaseOverlapConfirmed": true,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "fresh",
+        "seed": 20261020,
+        "initial": {
+          "status": 1,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "expire",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 373258000,
+            "result": "false"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 11035600,
+            "endNs": 370075400,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 10930900,
+            "endNs": 374778600,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 20458200,
+            "endNs": 375190300,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 10665700,
+            "endNs": 371087900,
+            "result": "ok"
+          },
+          {
+            "operation": "confirm",
+            "instance": "a",
+            "startNs": 22465800,
+            "endNs": 372232400,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "paid",
+        "seed": 20261020,
+        "initial": {
+          "status": 2,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 344072800,
+            "result": "ok"
+          },
+          {
+            "operation": "ready",
+            "instance": "a",
+            "startNs": 3871300,
+            "endNs": 344591900,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 206300,
+            "endNs": 344358800,
+            "result": "reject"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 302500,
+            "endNs": 342212100,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 3758600,
+            "endNs": 343210900,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          3,
+          2,
+          4
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "preparing",
+        "seed": 20261020,
+        "initial": {
+          "status": 3,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 20013200,
+            "endNs": 395891400,
+            "result": "reject"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 19870200,
+            "endNs": 395440000,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 394644600,
+            "result": "ok"
+          },
+          {
+            "operation": "confirm",
+            "instance": "a",
+            "startNs": 20222100,
+            "endNs": 395173800,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          2,
+          0,
+          1,
+          3
+        ],
+        "committedChanges": 4,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "ready",
+        "seed": 20261020,
+        "initial": {
+          "status": 4,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": true,
+          "pickup": true
+        },
+        "history": [
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 206300,
+            "endNs": 387879100,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 392597800,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 306100,
+            "endNs": 386000300,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 19552300,
+            "endNs": 386949400,
+            "result": "reject"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 19412200,
+            "endNs": 389599800,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          2,
+          1,
+          3,
+          4
+        ],
+        "committedChanges": 5,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "aged",
+        "seed": 20261020,
+        "initial": {
+          "status": 1,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 329622100,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 292300,
+            "endNs": 328004000,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 420200,
+            "endNs": 331822100,
+            "result": "ok"
+          },
+          {
+            "operation": "expire",
+            "instance": "a",
+            "startNs": 188100,
+            "endNs": 329931500,
+            "result": "false"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 19971500,
+            "endNs": 331052900,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 2,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "completed",
+        "seed": 20261020,
+        "initial": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": true,
+          "pickup": true
+        },
+        "history": [
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 617000,
+            "endNs": 367317000,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 420000,
+            "endNs": 366269500,
+            "result": "reject"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 701200,
+            "endNs": 367919400,
+            "result": "reject"
+          },
+          {
+            "operation": "ready",
+            "instance": "a",
+            "startNs": 522000,
+            "endNs": 368324100,
+            "result": "reject"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 369258900,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 5,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "cancelled",
+        "seed": 20261020,
+        "initial": {
+          "status": 6,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 311100,
+            "endNs": 368600900,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 369958200,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 225600,
+            "endNs": 366946800,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 124500,
+            "endNs": 367484400,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 412500,
+            "endNs": 369152100,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 0
+          },
+          {
+            "before": [
+              6,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "staged_fulfillment",
+        "seed": 20261020,
+        "history": [
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 332759200,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 194000,
+            "endNs": 332310200,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 663407700,
+            "endNs": 1019611900,
+            "result": "ok"
+          },
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 1357008300,
+            "endNs": 1714196300,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 1356828300,
+            "endNs": 1707119200,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 2041552300,
+            "endNs": 2432990000,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 2041716300,
+            "endNs": 2434382200,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          4,
+          3,
+          5,
+          6
+        ],
+        "initial": {
+          "status": 2,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "precedenceEdges": 18,
+        "committedChanges": 5,
+        "compensatingRequests": 0,
+        "databaseOverlapConfirmed": true,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "fresh",
+        "seed": 20261021,
+        "initial": {
+          "status": 1,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 546500,
+            "endNs": 359283500,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 357359800,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 647000,
+            "endNs": 360103300,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 159600,
+            "endNs": 347697800,
+            "result": "ok"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 269800,
+            "endNs": 359627800,
+            "result": "reject"
+          },
+          {
+            "operation": "expire",
+            "instance": "a",
+            "startNs": 388600,
+            "endNs": 357801700,
+            "result": "false"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "paid",
+        "seed": 20261021,
+        "initial": {
+          "status": 2,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 12386400,
+            "endNs": 366815000,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "a",
+            "startNs": 12910700,
+            "endNs": 365791000,
+            "result": "reject"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 12570800,
+            "endNs": 367311500,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 12131200,
+            "endNs": 365697800,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 366529600,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          2,
+          1,
+          3,
+          4
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "preparing",
+        "seed": 20261021,
+        "initial": {
+          "status": 3,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 361813300,
+            "result": "reject"
+          },
+          {
+            "operation": "ready",
+            "instance": "a",
+            "startNs": 25859300,
+            "endNs": 374061800,
+            "result": "reject"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 26617800,
+            "endNs": 373700700,
+            "result": "ok"
+          },
+          {
+            "operation": "confirm",
+            "instance": "a",
+            "startNs": 13383300,
+            "endNs": 373554600,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          0,
+          2,
+          1,
+          3
+        ],
+        "committedChanges": 4,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "ready",
+        "seed": 20261021,
+        "initial": {
+          "status": 4,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": true,
+          "pickup": true
+        },
+        "history": [
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 370002200,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 288300,
+            "endNs": 364623400,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "b",
+            "startNs": 400300,
+            "endNs": 366091100,
+            "result": "reject"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 718600,
+            "endNs": 367415100,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 183500,
+            "endNs": 366435200,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          1,
+          0,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 5,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "aged",
+        "seed": 20261021,
+        "initial": {
+          "status": 1,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 197900,
+            "endNs": 357602000,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 309700,
+            "endNs": 354807500,
+            "result": "ok"
+          },
+          {
+            "operation": "expire",
+            "instance": "b",
+            "startNs": 11129900,
+            "endNs": 356417400,
+            "result": "false"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 355323300,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 11015900,
+            "endNs": 357691100,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 2,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "completed",
+        "seed": 20261021,
+        "initial": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "rules": {
+          "expired": true,
+          "cutoff": true,
+          "pickup": true
+        },
+        "history": [
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 11331000,
+            "endNs": 352742900,
+            "result": "reject"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 0,
+            "endNs": 350337100,
+            "result": "reject"
+          },
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 11418300,
+            "endNs": 353373700,
+            "result": "reject"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 11196900,
+            "endNs": 354616700,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 11481100,
+            "endNs": 353729000,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 5,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      },
+      {
+        "target": "cancelled",
+        "seed": 20261021,
+        "initial": {
+          "status": 6,
+          "paid": 0,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 6,
+          "paid": 1,
+          "refund": "PENDING"
+        },
+        "rules": {
+          "expired": false,
+          "cutoff": false,
+          "pickup": false
+        },
+        "history": [
+          {
+            "operation": "pay",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 380001700,
+            "result": "ok"
+          },
+          {
+            "operation": "pay",
+            "instance": "a",
+            "startNs": 319700,
+            "endNs": 377214100,
+            "result": "ok"
+          },
+          {
+            "operation": "user_cancel",
+            "instance": "b",
+            "startNs": 105900,
+            "endNs": 379037300,
+            "result": "ok"
+          },
+          {
+            "operation": "admin_cancel",
+            "instance": "a",
+            "startNs": 248900,
+            "endNs": 377548000,
+            "result": "ok"
+          },
+          {
+            "operation": "replay",
+            "instance": "b",
+            "startNs": 195100,
+            "endNs": 379722800,
+            "result": "ok"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "committedChanges": 3,
+        "databaseOverlapConfirmed": true,
+        "compensatingRequests": 0,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 0
+          },
+          {
+            "before": [
+              6,
+              0,
+              "NONE"
+            ],
+            "after": [
+              6,
+              1,
+              "PENDING"
+            ],
+            "quantity": 1,
+            "held": 0
+          }
+        ]
+      },
+      {
+        "target": "staged_fulfillment",
+        "seed": 20261021,
+        "history": [
+          {
+            "operation": "ready",
+            "instance": "b",
+            "startNs": 0,
+            "endNs": 355467100,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 129800,
+            "endNs": 354833300,
+            "result": "reject"
+          },
+          {
+            "operation": "confirm",
+            "instance": "b",
+            "startNs": 696226600,
+            "endNs": 1058750800,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 1451521900,
+            "endNs": 1853767800,
+            "result": "ok"
+          },
+          {
+            "operation": "ready",
+            "instance": "a",
+            "startNs": 1451645900,
+            "endNs": 1851491500,
+            "result": "ok"
+          },
+          {
+            "operation": "redeem",
+            "instance": "b",
+            "startNs": 2292445400,
+            "endNs": 2659738500,
+            "result": "reject"
+          },
+          {
+            "operation": "redeem",
+            "instance": "a",
+            "startNs": 2292630300,
+            "endNs": 2661519700,
+            "result": "reject"
+          }
+        ],
+        "witness": [
+          0,
+          1,
+          2,
+          4,
+          3,
+          5,
+          6
+        ],
+        "initial": {
+          "status": 2,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "final": {
+          "status": 5,
+          "paid": 1,
+          "refund": "NONE"
+        },
+        "precedenceEdges": 18,
+        "committedChanges": 5,
+        "compensatingRequests": 0,
+        "databaseOverlapConfirmed": true,
+        "timeOrigin": "relative perf_counter_ns within this history",
+        "committedStatesBeforeAutomaticPhase": [
+          {
+            "before": null,
+            "after": [
+              1,
+              0,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              1,
+              0,
+              "NONE"
+            ],
+            "after": [
+              2,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              2,
+              1,
+              "NONE"
+            ],
+            "after": [
+              3,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              3,
+              1,
+              "NONE"
+            ],
+            "after": [
+              4,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          },
+          {
+            "before": [
+              4,
+              1,
+              "NONE"
+            ],
+            "after": [
+              5,
+              1,
+              "NONE"
+            ],
+            "quantity": 1,
+            "held": 1
+          }
+        ]
+      }
+    ]
+  },
+  "schedulerAblation": {
+    "privateRun": "799e0996d8",
+    "environment": {
+      "os": "Windows-11-10.0.26300-SP0",
+      "cpu": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+      "logicalCpus": 24,
+      "mysql": "8.0.46",
+      "java": "Corretto 8u504",
+      "springBoot": "2.7.3",
+      "redis": "7.4.3",
+      "instances": 2,
+      "merchant": "independent process / SQLite WAL",
+      "database": "unique test schema",
+      "leaseSeconds": 30,
+      "providerReadTimeoutMs": 6000,
+      "dbLockWaitTimeoutSeconds": 1,
+      "refundAutoScan": false,
+      "businessClockZone": "Asia/Shanghai",
+      "scheduledInstances": 1,
+      "refundScanMs": 200,
+      "timeoutScanMs": 200,
+      "instrumentedStateAudit": false,
+      "providerDelayIsPostCommit": true
+    },
+    "parameters": {
+      "rounds": 3,
+      "delay_ms": 5000,
+      "workers": 2,
+      "capacity": 2,
+      "seed": 20261019
+    },
+    "runs": [
+      {
+        "round": 1,
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 2,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 321.79,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3910.05,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 10
+      },
+      {
+        "round": 1,
+        "mode": "inline",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 336.97,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3865.87,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 10
+      },
+      {
+        "round": 1,
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 318.63,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 318.63,
+            "completedWhileSlowPending": true
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 1
+      },
+      {
+        "round": 1,
+        "mode": "inline",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 3877.07,
+            "completedWhileSlowPending": false
+          },
+          "quickRefund": {
+            "ms": 4301.49,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 11
+      },
+      {
+        "round": 1,
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 351.36,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 351.36,
+            "completedWhileSlowPending": true
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 1
+      },
+      {
+        "round": 1,
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 2,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 318.99,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3714.98,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 10
+      },
+      {
+        "round": 2,
+        "mode": "inline",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 308.07,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3389.31,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 9
+      },
+      {
+        "round": 2,
+        "mode": "inline",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 4258.51,
+            "completedWhileSlowPending": false
+          },
+          "quickRefund": {
+            "ms": 4258.51,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 11
+      },
+      {
+        "round": 2,
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 342.0,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 342.0,
+            "completedWhileSlowPending": true
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 1
+      },
+      {
+        "round": 2,
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 2,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 304.84,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3333.95,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 9
+      },
+      {
+        "round": 2,
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 320.25,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 320.25,
+            "completedWhileSlowPending": true
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 1
+      },
+      {
+        "round": 2,
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 2,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 302.59,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3747.94,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 10
+      },
+      {
+        "round": 3,
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 317.97,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 317.97,
+            "completedWhileSlowPending": true
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 1
+      },
+      {
+        "round": 3,
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 2,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 364.25,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 3845.81,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 10
+      },
+      {
+        "round": 3,
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 2,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 331.74,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 4085.72,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 11
+      },
+      {
+        "round": 3,
+        "mode": "inline",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 3620.49,
+            "completedWhileSlowPending": false
+          },
+          "quickRefund": {
+            "ms": 3620.49,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 10
+      },
+      {
+        "round": 3,
+        "mode": "inline",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 323.17,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 4100.18,
+            "completedWhileSlowPending": false
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 11
+      },
+      {
+        "round": 3,
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "workers": 2,
+        "queueCapacity": 2,
+        "scanMs": 200,
+        "delayMs": 5000,
+        "observed": {
+          "expiry": {
+            "ms": 356.31,
+            "completedWhileSlowPending": true
+          },
+          "quickRefund": {
+            "ms": 356.31,
+            "completedWhileSlowPending": true
+          }
+        },
+        "workerRejected": 0,
+        "sampleCount": 1
+      }
+    ],
+    "summary": [
+      {
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "repetitions": 3,
+        "expiryMedianMs": 351.36,
+        "quickRefundMedianMs": 351.36
+      },
+      {
+        "mode": "async",
+        "schedulerThreads": 1,
+        "slowCount": 2,
+        "repetitions": 3,
+        "expiryMedianMs": 318.99,
+        "quickRefundMedianMs": 3747.94
+      },
+      {
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "repetitions": 3,
+        "expiryMedianMs": 318.63,
+        "quickRefundMedianMs": 318.63
+      },
+      {
+        "mode": "async",
+        "schedulerThreads": 2,
+        "slowCount": 2,
+        "repetitions": 3,
+        "expiryMedianMs": 321.79,
+        "quickRefundMedianMs": 3910.05
+      },
+      {
+        "mode": "inline",
+        "schedulerThreads": 1,
+        "slowCount": 1,
+        "repetitions": 3,
+        "expiryMedianMs": 3877.07,
+        "quickRefundMedianMs": 4258.51
+      },
+      {
+        "mode": "inline",
+        "schedulerThreads": 2,
+        "slowCount": 1,
+        "repetitions": 3,
+        "expiryMedianMs": 323.17,
+        "quickRefundMedianMs": 3865.87
+      }
+    ]
+  },
+  "reliabilityRegression": {
+    "privateRun": "b1d471e4da",
+    "passed": 31
+  },
+  "retainedSetupFailure": {
+    "privateRun": "d4dea626e1",
+    "classification": "test harness prerequisite",
+    "reason": "MySQL 1419: binary logging requires elevated trigger creation",
+    "resolution": "create test triggers through existing root connection restricted to generated schema",
+    "globalSettingsChanged": false
+  },
+  "limitations": [
+    "Bounded complete HTTP histories, not a proof of arbitrary executions or uncertain outcomes.",
+    "Asynchronous refund recovery is checked separately from synchronous-history linearization.",
+    "Test-only audit triggers alter timing; no throughput claim from instrumented histories.",
+    "One order per meal in state-history fixtures; shared-meal capacity has separate historical tests.",
+    "Three repetitions per scheduling cell; no representative P95 or production SLA.",
+    "Two-second observation of the lost callback plus implementation review; no automatic payment reconciliation implemented.",
+    "Payment/refund funds simulated; two local application processes, no cross-machine or database failover test.",
+    "Historical TCP connect timeout remains unconfirmed; this iteration does not establish its root cause."
+  ],
+  "sourcesSha256": {
+    "scripts/order_state_model.py": "d2033c38a79a945940212a50cf0adc58a8d3cc56b4647de18e9a90fe57264bad",
+    "scripts/test_order_state_model.py": "1d77a738cde14658561517208360f412283226f9928a082486c74cc5d968ee00",
+    "scripts/state_history_checks.py": "8ecc6d0d3ab83b9927c23ae742fd05c249d941951c77828a20714a5c3545aba4",
+    "scripts/scheduler_ablation.py": "1dd6b936bb5da8fced454a679d8955575d0adbc9413c0879cefce19af64018ed",
+    "sky-take-out/sky-server/src/main/java/com/sky/service/RefundService.java": "2923de98f47e68e159fb28969b1b3cbad2e0bf431da18d99f72b0d02adb2d3a4",
+    "sky-take-out/sky-server/src/main/java/com/sky/reliability/ReliabilityProbe.java": "7445348b93b4b8993e30b3f59858f477110f8791afed2267fa5114e3ac3c2020",
+    "sky-take-out/sky-server/src/main/java/com/sky/controller/user/LocalPaymentController.java": "51be34c888b654ecbfa24b550470a3476335dd3d356d0a49713a882c3cde2c74"
+  }
+}

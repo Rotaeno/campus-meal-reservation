@@ -2,6 +2,11 @@ server:
   port: 8080
 
 spring:
+  task:
+    scheduling:
+      pool:
+        size: 2
+      thread-name-prefix: business-scheduler-
   flyway:
     # Use a direct migration connection: the legacy Druid pool invalidates a harmless
     # Flyway capability-probe permission error on performance_schema.

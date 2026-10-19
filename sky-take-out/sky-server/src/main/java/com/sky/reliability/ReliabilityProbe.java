@@ -13,12 +13,18 @@ import java.util.concurrent.*;
 @Component
 public class ReliabilityProbe {
     private final boolean enabled;
+    private final boolean synchronousRefundScan;
     private final Map<String, Gate> gates = new ConcurrentHashMap<>();
     private static final Set<String> STAGES = new HashSet<>(Arrays.asList(
-            "submit.beforeCommit", "submit.afterCommit", "refund.providerConfirmed", "refund.beforeCommit", "dbProbe.afterWrite"));
+            "submit.beforeCommit", "submit.afterCommit", "refund.providerConfirmed", "refund.beforeCommit", "dbProbe.afterWrite",
+            "payment.providerRecorded"));
     public ReliabilityProbe(Environment environment, @Value("${sky.local.reliability.enabled:false}") boolean enabled) {
         this.enabled = enabled && environment.acceptsProfiles(Profiles.of("local"));
+        // Ablation only: never reactivate synchronous provider work in a normal deployment.
+        this.synchronousRefundScan = this.enabled && environment.getProperty(
+                "sky.local.reliability.synchronous-refund-scan", Boolean.class, false);
     }
+    public boolean synchronousRefundScan() { return synchronousRefundScan; }
     public static class Gate {
         public final String stage;
         public final String key;

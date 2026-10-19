@@ -73,6 +73,8 @@ local profile使用模拟微信授权、支付及退款，本地文件上传替�
 
 非local支付通知会校验平台证书、原始正文签名、AES-GCM解密结果和订单金额。真实微信授权、支付、退款、证书轮换、OSS、地图仍需配置及真实联调。本地模拟结果不代表真实资金平台验收。浏览器连接不可用，本次完成了构建、资源和业务接口检查，尚未做页面自动点击验收。
 
+后台默认每3秒扫描退款候选，使用每实例2个线程、16个排队位置的工作池；可通过sky.refund.workers、sky.refund.queue-capacity调整，不能把排队接纳当作数据库领取。自动恢复、大表与持续负载的隔离实验命令见[后台恢复记录](docs/BACKGROUND_RECOVERY.md)；这些实验须顺序运行，结束仅停止自己启动的进程。
+
 仓库的`mp-weixin`是编译产物，本次补充其下单请求键兼容，验证了网络失败时保留原请求；校园新页面的可维护源码位于Vue工程。
 
 ## 构建与验证
@@ -101,3 +103,5 @@ python scripts/feature_checks.py --replay-only
 前端npm锁文件中的旧淘宝下载URL已换成npm官方URL，依赖版本与完整性校验保持原样。旧Webpack的Node兼容参数仅在构建进程中设置；构建仍有资源体积告警。start提供`.local/frontend`中的源码构建结果，未构建时给出明确提示。
 
 检查结果见[验证记录](docs/VALIDATION.md)，三份介绍见[简历与面试材料](docs/PROJECT_INTRODUCTIONS.md)，设计说明见[技术设计](docs/TECHNICAL_DESIGN.md)。
+
+2026-10-19新增隔离实验：`python scripts/state_history_checks.py`检查真实同单竞争与提交历史，`python scripts/scheduler_ablation.py --rounds 3`分别测量调度线程和异步执行的作用。两者顺序运行，创建唯一测试库，不写正常业务库。前者的测试触发器使用既有root连接创建，不修改全局数据库配置；后者的同步对照仅在local显式实验开关下生效。方法与边界见[本轮说明](docs/STATE_HISTORY_AND_SCHEDULING.md)。

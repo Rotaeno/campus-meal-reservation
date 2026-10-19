@@ -5,6 +5,7 @@ Requires an existing portable runtime, built JAR and reliability-requirements.tx
 import argparse
 import concurrent.futures as futures
 import json
+import hashlib
 import math
 import statistics
 import threading
@@ -321,20 +322,36 @@ def sustained(lab, scenario, seconds, workers):
         original = None
     stop = threading.Event()
     samples = []
+    network_samples = []
     metric_errors = []
     db_start = lab.db_metrics()
     pool_start = {name: lab.metrics(name) for name in ('a', 'b')}
     started = time.perf_counter()
     deadline = started + seconds
     def sample():
+        next_progress = started + 30
         while not stop.is_set():
             try:
                 samples.append({'locks': lab.waits(), 'pools': [lab.metrics(name) for name in ('a', 'b')]})
             except Exception as error:
                 metric_errors.append(type(error).__name__)
+            if time.perf_counter() >= next_progress:
+                print('LOAD ' + scenario + ': elapsed ' + str(round(time.perf_counter() - started))
+                      + '/' + str(seconds) + ' seconds', flush=True)
+                next_progress += 30
             stop.wait(.2)
+        lab.release_thread_session()
     observer = threading.Thread(target=sample, daemon=True)
     observer.start()
+    def network_sample():
+        from network_observation import snapshot
+        while not stop.is_set():
+            network_samples.append({'elapsedSeconds': round(time.perf_counter() - started, 2),
+                                    **snapshot({lab.ports['a'], lab.ports['b']})})
+            stop.wait(.5)
+    network_observer = threading.Thread(target=network_sample, daemon=True) if lab.network_diagnostics else None
+    if network_observer:
+        network_observer.start()
     def worker(index):
         name = 'a' if index % 2 else 'b'
         actor = actors[0] if scenario == 'same_user_replay' else actors[index]
@@ -358,6 +375,7 @@ def sustained(lab, scenario, seconds, workers):
                 outcomes.append((kind, (time.perf_counter() - begin) * 1000))
                 if kind == 'system_error':
                     errors.append({'phase': phase, 'http': result['_http']})
+                    lab.capture_failure(scenario)
                     break  # Retain request/cart instead of generating a new key after an uncertain failure.
                 if kind == 'success':
                     if scenario == 'same_user_replay':
@@ -372,14 +390,21 @@ def sustained(lab, scenario, seconds, workers):
                 if phase == 'checkout':
                     outcomes.append(('system_error', (time.perf_counter() - begin) * 1000))
                 errors.append({'phase': phase, 'exception': type(error).__name__, 'detail': str(error)[:400]})
+                lab.capture_failure(scenario)
                 break
-        return outcomes, all_http, created, errors
+        closes = getattr(lab.http, 'connection_closes', 0)
+        lab.release_thread_session()
+        return outcomes, all_http, created, errors, closes
     try:
         with futures.ThreadPoolExecutor(workers) as pool:
             results = list(pool.map(worker, range(workers)))
     finally:
         stop.set()
-        observer.join(timeout=5)
+        observer.join(timeout=30)
+        if observer.is_alive():
+            metric_errors.append('observer did not stop within 30 seconds')
+        if network_observer:
+            network_observer.join(timeout=2)
     elapsed = time.perf_counter() - started
     db_end = lab.db_metrics()
     pool_end = {name: lab.metrics(name) for name in ('a', 'b')}
@@ -396,7 +421,9 @@ def sustained(lab, scenario, seconds, workers):
               'checkoutRequestsPerSecond': round(len(outcomes) / elapsed, 2),
               'successfulCheckoutsPerSecond': round(counts['success'] / elapsed, 2),
               'allBusinessHttpRequestsPerSecond': round(sum(item[1] for item in results) / elapsed, 2),
+              'connectionCloseResponses': sum(item[4] for item in results),
               'checkoutP50Ms': percentile(latencies, .5), 'checkoutP95Ms': percentile(latencies, .95),
+              'checkoutP99Ms': percentile(latencies, .99),
               'successP95Ms': percentile([value for kind, value in outcomes if kind == 'success'], .95),
               'businessRejectionP95Ms': percentile([value for kind, value in outcomes if kind == 'business_rejection'], .95),
               'dbGlobalDelta': {key: db_end[key] - value for key, value in db_start.items() if key != 'Innodb_row_lock_current_waits'},
@@ -415,6 +442,10 @@ def sustained(lab, scenario, seconds, workers):
         (lab.directory / ('deadlock-' + scenario + '-pool' + str(lab.pool) + '.txt')).write_text(status, encoding='utf-8')
     with (lab.directory / 'loads.jsonl').open('a', encoding='utf-8') as output:
         output.write(json.dumps(result) + '\n')
+    if network_samples:
+        with (lab.directory / 'network-samples.jsonl').open('a', encoding='utf-8') as output:
+            output.write(json.dumps({'scenario': scenario, 'samples': network_samples}) + '\n')
+        result['networkHandshakePendingPeak'] = max(len(item.get('pendingHandshakes', [])) for item in network_samples)
     assert counts['system_error'] == 0 and not result['workerErrors'], result
     ids = [identifier for item in results for identifier in item[2]]
     if scenario == 'same_user_replay':
@@ -443,10 +474,10 @@ def main():
     parser.add_argument('--retry-only', action='store_true')
     args = parser.parse_args()
     pools = [int(item) for item in args.pools.split(',')]
-    assert 1 <= args.load_seconds <= 60 and 2 <= args.workers <= 64 and all(1 <= pool <= 32 for pool in pools)
+    assert 1 <= args.load_seconds <= 600 and 2 <= args.workers <= 64 and all(1 <= pool <= 32 for pool in pools)
     lab = Lab()
     report = {'date': datetime.now().astimezone().isoformat(), 'status': 'running', 'checks': lab.checks,
-              'parameters': vars(args), 'loadRuns': []}
+              'parameters': vars(args), 'loadRuns': [], 'jarSha256': hashlib.sha256(lab.jar.read_bytes()).hexdigest()}
     try:
         lab.setup()
         report['environment'] = lab.environment_info()

@@ -34,12 +34,15 @@ public class RefundService {
     private final ReliabilityProbe reliability;
     private final long leaseSeconds;
     private final boolean scanEnabled;
+    private final RefundDispatcher dispatcher;
     public RefundService(RefundTaskMapper tasks,OrderMapper orders,WeChatPayUtil gateway,Clock clock,PlatformTransactionManager manager,
                          DatabaseRetry retry,ReliabilityProbe reliability,
                          @Value("${sky.refund.lease-seconds:120}") long leaseSeconds,
-                         @Value("${sky.refund.scan-enabled:true}") boolean scanEnabled) {
+                         @Value("${sky.refund.scan-enabled:true}") boolean scanEnabled,
+                         RefundDispatcher dispatcher) {
         this.tasks=tasks; this.orders=orders; this.gateway=gateway; this.clock=clock; this.transaction=new TransactionTemplate(manager);
         this.retry=retry; this.reliability=reliability; this.leaseSeconds=leaseSeconds; this.scanEnabled=scanEnabled;
+        this.dispatcher=dispatcher;
         if(leaseSeconds<1 || leaseSeconds>600) { throw new IllegalArgumentException("Invalid refund lease duration"); }
     }
     private LocalDateTime now() { return LocalDateTime.now(clock); }
@@ -53,7 +56,11 @@ public class RefundService {
     @Scheduled(fixedDelayString="${sky.refund.interval-ms:3000}")
     public void processDue() {
         if(!scanEnabled) { return; }
-        processAvailable();
+        // The scheduler never waits for the provider. Claim/lease starts only inside an executing worker.
+        for(Long id:tasks.due(now())) {
+            if(reliability.synchronousRefundScan()) { process(id); } // Opt-in local ablation, default off.
+            else { dispatcher.dispatch(id, () -> process(id)); }
+        }
     }
     public void processAvailable() {
         for(Long id:tasks.due(now())) { process(id); }
